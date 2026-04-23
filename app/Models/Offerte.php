@@ -9,8 +9,10 @@ use Illuminate\Support\Str;
 
 class Offerte extends Model
 {
+    protected $table = 'offertes';
+
     protected $fillable = [
-        'klant_id', 'nummer', 'token', 'status', 'inleiding',
+        'klant_id', 'template_id', 'nummer', 'token', 'status', 'inleiding',
         'subtotaal', 'btw_bedrag', 'totaal', 'geldig_tot',
         'verstuurd_op', 'bekeken_op', 'geaccepteerd_op', 'geaccepteerd_door',
     ];
@@ -47,6 +49,16 @@ class Offerte extends Model
     public function regels(): HasMany
     {
         return $this->hasMany(OfferteRegel::class)->orderBy('volgorde');
+    }
+
+    public function secties(): HasMany
+    {
+        return $this->hasMany(OfferteSectie::class)->orderBy('volgorde');
+    }
+
+    public function template(): BelongsTo
+    {
+        return $this->belongsTo(OfferteTemplate::class);
     }
 
     public function berekenTotalen(): void

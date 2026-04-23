@@ -1,58 +1,307 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Energx CRM
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Offerte- en klantbeheersysteem voor Energx.nl. Gebouwd met Laravel 13, MySQL en Docker (Laravel Sail).
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Wat zit erin?
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+| Module | Beschrijving |
+|---|---|
+| **Klanten** | Contactbeheer met adres, bron en notities |
+| **Producten** | Productcatalogus met categorie en prijs |
+| **Offerte templates** | Herbruikbare sjablonen met secties en standaard prijsregels |
+| **Offertes** | Offerte aanmaken vanuit template, versturen en digitaal laten accepteren |
+| **Offerte editor** | Inline bewerkingsscherm — zelfde layout als de klantviewer |
+| **Offerte viewer** | Publieke pagina voor de klant met digitale acceptatie |
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## Vereisten
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+| Tool | Versie | Download |
+|---|---|---|
+| **Docker Desktop** | 4.x of nieuwer | [docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop/) |
+| **Git** | Niet vereist, maar handig | — |
+| **PHP** (optioneel) | 8.3+ | Alleen nodig als je Composer lokaal draait |
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+> Docker Desktop is de enige harde vereiste. Alles draait in containers.
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+---
 
-## Agentic Development
+## Installatie (nieuwe laptop)
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+### Stap 1 — Project klonen
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+git clone https://github.com/jouw-org/energx-crm.git
+cd energx-crm
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Of kopieer de projectmap handmatig naar de nieuwe laptop.
 
-## Contributing
+---
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Stap 2 — `.env` aanmaken
 
-## Code of Conduct
+```bash
+cp .env.example .env
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Het `.env.example` bestand is al ingesteld voor Docker/Sail. Je hoeft niets te wijzigen.
 
-## Security Vulnerabilities
+---
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### Stap 3 — Composer dependencies installeren
 
-## License
+**Optie A — met lokale PHP:**
+```bash
+composer install
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+**Optie B — zonder lokale PHP (via Docker):**
+```bash
+docker run --rm \
+  -u "$(id -u):$(id -g)" \
+  -v "$(pwd):/var/www/html" \
+  -w /var/www/html \
+  laravelsail/php85-composer:latest \
+  composer install --ignore-platform-reqs
+```
+
+---
+
+### Stap 4 — Docker containers opstarten
+
+```bash
+./vendor/bin/sail up -d
+```
+
+De eerste keer duurt dit 2–5 minuten omdat Docker de image bouwt.
+
+> **Let op:** Zorg dat Docker Desktop open en actief is voordat je dit commando uitvoert.
+
+---
+
+### Stap 5 — App key genereren
+
+```bash
+./vendor/bin/sail artisan key:generate
+```
+
+---
+
+### Stap 6 — Database aanmaken en migrations uitvoeren
+
+```bash
+./vendor/bin/sail artisan migrate
+```
+
+---
+
+### Stap 7 — Demodata inladen
+
+```bash
+./vendor/bin/sail artisan db:seed
+```
+
+Dit maakt aan:
+- Admin gebruiker (`admin@energx.nl` / `password`)
+- 3 producten (Zaptec Go, 2 installatiepakketten)
+- 2 offerte templates (Zaptec Go — Standaard installatie / Kruipruimte)
+- 1 demo klant (Imad Amazyan)
+- 1 demo offerte (ENX-2026-0001, concept)
+
+---
+
+### Stap 8 — Klaar!
+
+Open de browser en ga naar:
+
+| URL | Omschrijving |
+|---|---|
+| `http://localhost` | Login pagina CRM |
+| `http://localhost:8025` | Mailpit (e-mails bekijken) |
+
+**Inloggegevens:**
+```
+E-mail:    admin@energx.nl
+Wachtwoord: password
+```
+
+---
+
+## Dagelijks gebruik
+
+### Containers starten
+
+```bash
+./vendor/bin/sail up -d
+```
+
+### Containers stoppen
+
+```bash
+./vendor/bin/sail down
+```
+
+### In de container werken (artisan, composer, etc.)
+
+```bash
+# Artisan commando
+./vendor/bin/sail artisan <commando>
+
+# Composer
+./vendor/bin/sail composer <commando>
+
+# MySQL shell
+./vendor/bin/sail mysql
+```
+
+---
+
+## Korte alias instellen (optioneel maar handig)
+
+Voeg dit toe aan `~/.zshrc` of `~/.bashrc`:
+
+```bash
+alias sail='[ -f sail ] && sh sail || sh vendor/bin/sail'
+```
+
+Daarna kun je gewoon `sail up -d` gebruiken in plaats van `./vendor/bin/sail up -d`.
+
+---
+
+## Projectstructuur
+
+```
+energx-crm/
+├── app/
+│   ├── Http/Controllers/
+│   │   ├── DashboardController.php
+│   │   ├── KlantController.php
+│   │   ├── OfferteController.php        ← CRUD + editor + viewer + accepteer
+│   │   ├── OfferteSectieController.php  ← AJAX API voor editor (secties)
+│   │   ├── OfferteTemplateController.php
+│   │   └── ProductController.php
+│   └── Models/
+│       ├── Klant.php
+│       ├── Offerte.php                  ← auto nummer + token, berekenTotalen()
+│       ├── OfferteSectie.php
+│       ├── OfferteRegel.php
+│       ├── OfferteTemplate.php
+│       ├── OfferteTemplateSectie.php
+│       ├── OfferteTemplateRegel.php
+│       └── Product.php
+├── database/
+│   ├── migrations/                      ← alle tabellen
+│   └── seeders/
+│       ├── DatabaseSeeder.php           ← roept DemoSeeder aan
+│       ├── DemoSeeder.php               ← gebruiker, producten, klant, offerte
+│       └── ZaptecTemplatesSeeder.php    ← Zaptec Go templates met secties
+├── resources/views/
+│   ├── auth/login.blade.php
+│   ├── components/layouts/crm.blade.php ← hoofd-layout (sidebar, topbar, CSS)
+│   ├── offertes/
+│   │   ├── index.blade.php
+│   │   ├── create.blade.php
+│   │   ├── edit.blade.php
+│   │   ├── show.blade.php
+│   │   ├── editor.blade.php             ← inline editor (Alpine.js + AJAX)
+│   │   └── viewer.blade.php             ← publieke viewer voor klant
+│   ├── offerte-templates/
+│   │   ├── index.blade.php
+│   │   ├── create.blade.php
+│   │   └── edit.blade.php
+│   ├── klanten/
+│   └── producten/
+├── routes/web.php
+├── compose.yaml                         ← Docker Sail configuratie
+└── .env.example                         ← kopieer naar .env
+```
+
+---
+
+## Routes overzicht
+
+### CRM (vereist login)
+
+| Methode | URL | Beschrijving |
+|---|---|---|
+| GET | `/dashboard` | Dashboard |
+| GET/POST | `/klanten` | Klantenoverzicht en aanmaken |
+| GET/POST | `/producten` | Productcatalogus |
+| GET/POST | `/offertes` | Offerteoverzicht en aanmaken |
+| GET | `/offertes/{id}/editor` | Inline editor |
+| GET/POST | `/offerte-templates` | Template beheer |
+
+### Publiek (geen login)
+
+| Methode | URL | Beschrijving |
+|---|---|---|
+| GET | `/offerte/{token}` | Offerte viewer voor klant |
+| POST | `/offerte/{token}/accepteer` | Digitale acceptatie |
+
+---
+
+## Database tabellen
+
+| Tabel | Omschrijving |
+|---|---|
+| `users` | Admin gebruikers |
+| `klanten` | Klantgegevens |
+| `producten` | Productcatalogus |
+| `offertes` | Offertes (auto nummer ENX-YYYY-NNNN, uniek token) |
+| `offerte_regels` | Prijsregels per offerte |
+| `offerte_secties` | Secties per offerte (inhoud als JSON) |
+| `offerte_templates` | Herbruikbare templates |
+| `offerte_template_secties` | Secties per template |
+| `offerte_template_regels` | Standaard prijsregels per template |
+
+---
+
+## Problemen oplossen
+
+### "Docker daemon not running"
+Open Docker Desktop en wacht tot het groene icoontje verschijnt.
+
+### "Port 80 already in use"
+Een andere app gebruikt poort 80. Pas in `.env` aan:
+```
+APP_PORT=8080
+```
+En open `http://localhost:8080`.
+
+### "Permission denied" bij `./vendor/bin/sail`
+```bash
+chmod +x vendor/bin/sail
+```
+
+### Containers resetten (alles opnieuw)
+```bash
+./vendor/bin/sail down -v        # verwijdert ook de database volumes
+./vendor/bin/sail up -d
+./vendor/bin/sail artisan migrate
+./vendor/bin/sail artisan db:seed
+```
+
+### Seed opnieuw draaien zonder alles te wissen
+De seeder gebruikt `updateOrCreate` — je kunt hem veilig meerdere keren draaien:
+```bash
+./vendor/bin/sail artisan db:seed
+```
+
+---
+
+## Technische details
+
+| Onderdeel | Keuze | Reden |
+|---|---|---|
+| Framework | Laravel 13 | Volwassen PHP framework, goede ORM |
+| PHP versie | 8.5 | Nieuwste stabiele versie in Sail |
+| Database | MySQL 8.4 | Via Docker, geen lokale installatie nodig |
+| Frontend | Blade + Alpine.js | Geen build-stap, simpel en snel |
+| Mail (dev) | Mailpit | Vangt alle e-mails lokaal op, nooit per ongeluk verzonden |
+| Auth | Laravel Breeze (custom) | Simpele sessie-auth, eigen login design |
+| Offerte token | `Str::random(32)` | Unieke publieke link zonder login |
+| Sectie inhoud | JSON kolom | Flexibel per sectie-type (specs, stappen, tekst) |

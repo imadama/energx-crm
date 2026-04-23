@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class OfferteRegel extends Model
 {
+    protected $table = 'offerte_regels';
+
     protected $fillable = [
         'offerte_id', 'product_id', 'naam', 'beschrijving',
         'aantal', 'eenheidsprijs', 'totaal', 'volgorde',

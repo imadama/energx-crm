@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Klant extends Model
 {
+    protected $table = 'klanten';
+
     protected $fillable = [
         'naam', 'email', 'telefoon', 'straat', 'huisnummer',
         'postcode', 'stad', 'notities', 'bron',
