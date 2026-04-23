@@ -42,24 +42,24 @@ De Zaptec Go beschikt over een 5 jaar garantie en is winnaar van de Red Dot Desi
 
         $werkwijzeStappen = [
             [
-                'titel'       => 'Aanvraag & adviesgesprek',
-                'beschrijving' => 'Na ontvangst van uw offerteverzoek neemt een van onze adviseurs contact met u op. We bespreken uw situatie, de meterkastopstelling en de gewenste locatie van de laadpaal.',
+                'titel'        => 'Offerte zonder schouwing',
+                'beschrijving' => 'Deze offerte is uitgebracht op basis van de door u aangeleverde informatie. Na akkoord wordt de installatie door de technisch specialist voorbereid. Hiervoor vragen we u mogelijk om nog enkele foto\'s aan te leveren van de groepenkast, de positie waar de laadpaal moet komen en het eventuele graafwerk.',
             ],
             [
-                'titel'       => 'Inmeten & planning',
-                'beschrijving' => 'Een gecertificeerde installateur komt langs om de situatie te beoordelen en de installatie in te plannen. We controleren de groepenkast en kabeltracé.',
+                'titel'        => 'Vereisten meterkast',
+                'beschrijving' => 'De offerte gaat er vanuit dat uw meterkast geschikt is, een hoofdschakelaar heeft en dat er voldoende ruimte is voor de groepenkastuitbreiding. Indien dit niet het geval is zijn de volgende meerkosten van toepassing: plaatsen hoofdschakelaar (€ 75,00), uitbreidingskastje — vereist 20×20 cm vrije ruimte (€ 75,00), 3-fase voorbereiding indien u een 1-fase meterkast heeft en wilt verzwaren (€ 250,00). Indien uw meterkast niet geschikt is doen wij een voorstel om de volledige meterkast te vervangen.',
             ],
             [
-                'titel'       => 'Installatie',
-                'beschrijving' => 'De installateur installeert de Zaptec Go conform de NEN 1010 norm en de eisen van de netbeheerder. De laadpaal wordt aangesloten, getest en ingesteld.',
+                'titel'        => 'Beoordeling na akkoord',
+                'beschrijving' => 'Na het accepteren van de offerte wordt de meterkast aan de hand van de door u aangeleverde foto\'s door de technisch specialist beoordeeld. Indien er sprake is van meerwerk wordt dit aan u voorgelegd. Indien u niet akkoord gaat met de meerkosten kunt u op dat moment nog kosteloos annuleren.',
             ],
             [
-                'titel'       => 'Activatie & uitleg',
-                'beschrijving' => 'We koppelen de Zaptec App aan uw account en leggen uit hoe u laadschema\'s instelt, het verbruik bijhoudt en de Eco-modus gebruikt.',
+                'titel'        => 'Planningsvoorstel & bindendheid',
+                'beschrijving' => 'De offerte is pas bindend nadat wij uw situatie aan de hand van foto\'s hebben beoordeeld en u een planningsvoorstel voor installatie sturen.',
             ],
             [
-                'titel'       => 'Nazorg',
-                'beschrijving' => 'Na de installatie staan wij voor u klaar voor vragen of ondersteuning. Als lokale installateur zijn we snel bereikbaar en kennen we uw specifieke situatie.',
+                'titel'        => 'Meerkosten & tarieven',
+                'beschrijving' => 'Indien de situatie afwijkt van de door u aangeleverde informatie kan dit tot meerkosten leiden. Voor extra kabel geldt een toeslag van € 10,00 per meter. Voor graafwerkzaamheden bedraagt dit € 35,00 per meter. Indien ter plekke blijkt dat er in de meterkast niet voldoende ruimte is voor de groepsuitbreiding dient een uitbreidingskastje geplaatst te worden (€ 75,00). De genoemde tarieven zijn exclusief btw.',
             ],
         ];
 
