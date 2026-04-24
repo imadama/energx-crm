@@ -26,6 +26,7 @@ Route::middleware(['auth'])->group(function () {
 
 // Publieke offerte viewer (geen login nodig)
 Route::get('/offerte/{token}', [OfferteController::class, 'viewer'])->name('offertes.viewer');
+Route::get('/offerte/{token}/pdf', [OfferteController::class, 'pdf'])->name('offertes.pdf');
 Route::post('/offerte/{token}/accepteer', [OfferteController::class, 'accepteer'])->name('offertes.accepteer');
 
 require __DIR__.'/auth.php';

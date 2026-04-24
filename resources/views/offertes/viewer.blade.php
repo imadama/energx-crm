@@ -5,7 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{ $offerte->nummer }} — Energx offerte</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Momo+Signature&display=swap" rel="stylesheet">
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -51,10 +53,28 @@
     .bijlage-item:hover { color: rgba(255,255,255,.85); }
 
     /* MAIN */
-    .main { margin-left: var(--sidebar-width); margin-top: var(--topbar-height); min-height: calc(100vh - var(--topbar-height)); display: flex; align-items: flex-start; justify-content: center; padding: 48px 40px 80px; }
-    .section { display: none; width: 100%; max-width: 820px; }
-    .section.active { display: block; }
-    .page-card { background: #fff; border-radius: 3px; box-shadow: 0 2px 24px rgba(0,0,0,.09); overflow: hidden; }
+    .main {
+      margin-left: var(--sidebar-width);
+      margin-top: var(--topbar-height);
+      min-height: calc(100vh - var(--topbar-height));
+      padding: 48px 40px 80px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 36px;
+    }
+    .section {
+      width: 794px; /* A4 @ 96dpi */
+      scroll-margin-top: calc(var(--topbar-height) + 20px);
+    }
+    .page-card {
+      width: 794px;
+      min-height: 1123px; /* A4 @ 96dpi */
+      background: #fff;
+      border-radius: 3px;
+      box-shadow: 0 4px 32px rgba(0,0,0,.12), 0 1px 6px rgba(0,0,0,.06);
+      overflow: hidden;
+    }
 
     /* VOORBLAD */
     .cover-hero { width: 100%; height: 380px; object-fit: cover; display: block; }
@@ -115,18 +135,117 @@
     /* MODAL */
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 200; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity .2s; }
     .modal-overlay.open { opacity: 1; pointer-events: all; }
-    .modal { background: #fff; border-radius: 16px; padding: 40px; max-width: 420px; width: 90%; text-align: center; transform: scale(.96); transition: transform .2s; }
+    .modal { background: #fff; border-radius: 18px; padding: 34px; max-width: 920px; width: min(920px, calc(100vw - 36px)); text-align: left; transform: scale(.98); transition: transform .2s; box-shadow: 0 20px 60px rgba(0,0,0,.25); }
     .modal-overlay.open .modal { transform: scale(1); }
-    .modal-icon { width: 52px; height: 52px; border-radius: 50%; background: rgba(45,189,110,.1); color: var(--green-400); display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; }
-    .modal-icon svg { width: 26px; height: 26px; }
-    .modal h2 { font-family: var(--font-display); font-size: 1.45rem; color: var(--green-800); margin-bottom: 8px; }
-    .modal p { color: #666; font-size: .88rem; line-height: 1.6; margin-bottom: 20px; }
+    .modal-header { display:flex; align-items:flex-start; justify-content:space-between; gap: 16px; margin-bottom: 18px; }
+    .modal-title { font-family: var(--font-display); font-size: 1.85rem; color: var(--green-800); line-height: 1.1; }
+    .modal-subtitle { color:#4b5563; font-size: .98rem; line-height: 1.5; margin-top: 6px; }
+    .modal-close-x { width: 40px; height: 40px; border-radius: 12px; border: 1px solid #e5e7eb; background: #fff; cursor: pointer; color:#555; display:flex; align-items:center; justify-content:center; }
+    .modal-close-x:hover { background:#f3f4f6; }
+
+    .modal-meta { display:grid; grid-template-columns: 1fr; gap: 8px; padding: 14px 16px; border: 1px solid #eef0f3; background: #f9fafb; border-radius: 14px; margin-bottom: 18px; }
+    @media (min-width: 900px) { .modal-meta { grid-template-columns: 1.4fr 1fr 1fr; } }
+    .meta-item .lbl { font-size:.72rem; font-weight: 700; text-transform: uppercase; letter-spacing:.08em; color:#9ca3af; }
+    .meta-item .val { margin-top: 2px; font-size:.95rem; font-weight: 600; color:#111827; }
+
     .modal-input { width: 100%; padding: 10px 14px; border: 1.5px solid #e5e7eb; border-radius: 8px; font-family: var(--font-body); font-size: .9rem; margin-bottom: 10px; outline: none; transition: border-color .15s; }
     .modal-input:focus { border-color: var(--green-400); }
-    .modal-btns { display: flex; gap: 10px; margin-top: 6px; }
-    .modal-cancel { flex: 1; padding: 10px; border: 1.5px solid #e5e7eb; background: #fff; border-radius: 8px; font-family: var(--font-body); font-size: .875rem; cursor: pointer; color: #666; }
-    .modal-confirm { flex: 2; padding: 10px; background: var(--green-400); color: #fff; border: none; border-radius: 8px; font-family: var(--font-body); font-weight: 600; font-size: .875rem; cursor: pointer; transition: background .15s; }
-    .modal-confirm:hover { background: #25a560; }
+
+    .momo-signature-regular {
+      font-family: "Momo Signature", cursive;
+      font-weight: 400;
+      font-style: normal;
+    }
+
+    .sig-label { font-size:.78rem; font-weight: 700; color:#374151; margin: 14px 0 6px; }
+    .sig-tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid #e5e7eb;
+      margin-bottom: 12px;
+    }
+    .sig-tab {
+      padding: 10px 14px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-family: var(--font-body);
+      font-size: .9rem;
+      font-weight: 700;
+      color: #64748b;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -1px;
+    }
+    .sig-tab:hover { color: #334155; background: rgba(15, 74, 42, .03); }
+    .sig-tab.active {
+      color: var(--green-800);
+      border-bottom-color: var(--green-400);
+      background: rgba(45,189,110,.08);
+    }
+
+    .sig-type-input { width: 100%; padding: 10px 12px; border: 1.5px solid #e5e7eb; border-radius: 10px; font-family: var(--font-body); font-size: .95rem; outline:none; }
+    .sig-type-input:focus { border-color: var(--green-400); }
+
+    .sig-topbar { height: 44px; display:flex; align-items:center; }
+    .sig-topbar .sig-type-input { margin: 0; }
+
+    .sig-pane {
+      height: 320px; /* fixed to prevent layout shift between tabs */
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .sig-pane .modal-error {
+      min-height: 20px; /* reserve space even when hidden */
+      display: block;
+      visibility: hidden;
+      margin-top: 0;
+    }
+    .sig-pane .modal-error.show { visibility: visible; }
+
+    .sig-preview {
+      border: 1.5px dashed #dbe3ea;
+      border-radius: 12px;
+      background: #fff;
+      height: 180px; /* match drawing pad height */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 16px;
+      overflow: hidden;
+    }
+    .sig-preview-text { font-size: 44px; line-height: 1; color: #111827; white-space: nowrap; transform-origin: center; }
+    .sig-preview-placeholder { color:#9ca3af; font-size:.9rem; }
+
+    .sig-canvas-wrap { border: 1.5px dashed #dbe3ea; border-radius: 12px; background:#fff; height: 180px; overflow:hidden; position: relative; }
+    .sig-canvas { width: 100%; height: 180px; display:block; touch-action: none; }
+    .sig-canvas-actions { display:flex; justify-content:flex-end; gap:8px; margin-top: 10px; }
+    .sig-clear { padding: 8px 10px; border-radius: 10px; border: 1px solid #e5e7eb; background:#fff; cursor:pointer; font-family: var(--font-body); font-weight: 600; font-size:.85rem; color:#555; }
+    .sig-clear:hover { background:#f3f4f6; }
+
+    .modal-footer { display:flex; align-items:center; justify-content:space-between; gap: 12px; margin-top: 18px; padding-top: 14px; border-top: 1px solid #f1f5f9; }
+    .modal-link { color:#64748b; font-size:.9rem; text-decoration:none; cursor:pointer; }
+    .modal-link:hover { text-decoration: underline; }
+    .modal-save { padding: 12px 18px; background: var(--green-400); color:#fff; border:none; border-radius: 12px; font-family: var(--font-body); font-weight: 700; font-size:.95rem; cursor:pointer; }
+    .modal-save:hover { background:#25a560; }
+
+    .modal-check { display:flex; gap: 10px; align-items:flex-start; margin-top: 14px; }
+    .modal-check input { margin-top: 3px; }
+    .modal-check label { font-size: .88rem; color:#374151; line-height: 1.45; }
+    .modal-error {
+      margin-top: 6px;
+      font-size: .86rem;
+      color: #b91c1c;
+      line-height: 1.35;
+      display: none;
+    }
+    .modal-error.show { display: block; }
+    .modal-input.invalid, .sig-type-input.invalid, .sig-canvas-wrap.invalid {
+      border-color: #ef4444 !important;
+      background: #fff7f7;
+    }
+    .sig-actions-spacer { height: 40px; display:flex; align-items:center; justify-content:flex-end; }
+    .sig-actions-spacer.is-hidden { visibility: hidden; }
   </style>
 </head>
 <body>
@@ -145,10 +264,10 @@
       <span>Energx</span>
     </a>
     <div class="topbar-actions">
-      <button class="btn-icon" onclick="window.print()">
+      <a class="btn-icon" href="{{ route('offertes.pdf', $offerte->token) }}">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-        print
-      </button>
+        pdf
+      </a>
       @if(!$isGeaccepteerd)
         <button class="btn-accept" id="topbar-accept" onclick="openModal()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="15" height="15"><polyline points="20 6 9 17 4 12"/></svg>
@@ -203,7 +322,7 @@
   <main class="main">
     @foreach($secties as $index => $sectie)
     @php $inhoud = $sectie->inhoud ?? []; @endphp
-    <section class="section {{ $index === 0 ? 'active' : '' }}" id="s-{{ $index }}">
+    <section class="section" id="s-{{ $index }}" data-index="{{ $index }}">
       <div class="page-card">
 
         {{-- VOORBLAD --}}
@@ -327,16 +446,81 @@
   @if(!$isGeaccepteerd)
   <div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
     <div class="modal">
-      <div class="modal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>
-      <h2>Offerte goedkeuren</h2>
-      <p>Vul je naam en e-mailadres in om de offerte digitaal te accepteren.</p>
-      <form method="POST" action="{{ route('offertes.accepteer', $offerte->token) }}">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title">Offerte goedkeuren</div>
+          <div class="modal-subtitle">Fijn dat u voor ons wilt kiezen voor de installatie van uw laadpaal!</div>
+        </div>
+        <button type="button" class="modal-close-x" onclick="closeModal()" aria-label="Sluiten">✕</button>
+      </div>
+
+      <div class="modal-meta">
+        <div class="meta-item">
+          <div class="lbl">Offerte</div>
+          <div class="val">{{ $offerte->inleiding ?: $offerte->nummer }}</div>
+        </div>
+        <div class="meta-item">
+          <div class="lbl">Contact</div>
+          <div class="val">{{ $offerte->klant->naam }}</div>
+        </div>
+        <div class="meta-item">
+          <div class="lbl">Datum</div>
+          <div class="val">{{ now()->format('d-m-Y') }}</div>
+        </div>
+      </div>
+
+      <form method="POST" action="{{ route('offertes.accepteer', $offerte->token) }}" id="accept-form" novalidate>
         @csrf
-        <input class="modal-input" type="text" name="naam" placeholder="Je volledige naam" required>
-        <input class="modal-input" type="email" name="email" placeholder="Je e-mailadres" required>
-        <div class="modal-btns">
-          <button type="button" class="modal-cancel" onclick="closeModal()">Annuleren</button>
-          <button type="submit" class="modal-confirm">Bevestigen & ondertekenen</button>
+        <div>
+          <div class="sig-label">Naam:</div>
+          <input class="modal-input" type="text" name="naam" id="accept-naam" placeholder="Uw volledige naam" required>
+          <div class="modal-error" id="err-naam"></div>
+        </div>
+
+        <div class="sig-label">Handtekening:</div>
+
+        <div class="sig-tabs" role="tablist" aria-label="Handtekening methode">
+          <button type="button" class="sig-tab active" id="tab-typed" onclick="setSigMode('typed')">Typen</button>
+          <button type="button" class="sig-tab" id="tab-drawn" onclick="setSigMode('drawn')">Tekenen</button>
+        </div>
+
+        <input type="hidden" name="signature_type" id="signature_type" value="typed">
+        <input type="hidden" name="signature_data" id="signature_data" value="">
+
+        <div id="sig-typed" class="sig-pane">
+          <div class="sig-topbar">
+            <input type="text" class="sig-type-input" id="sig-typed-input" placeholder="type hier je handtekening" autocomplete="off">
+          </div>
+          <div class="sig-preview" id="sig-preview">
+            <div class="sig-preview-placeholder" id="sig-preview-placeholder">Uw handtekening verschijnt hier</div>
+            <div class="sig-preview-text momo-signature-regular" id="sig-preview-text" style="display:none"></div>
+          </div>
+          <div class="modal-error" id="err-signature"></div>
+          <div class="sig-actions-spacer is-hidden">
+            <button type="button" class="sig-clear" tabindex="-1">Wis</button>
+          </div>
+        </div>
+
+        <div id="sig-drawn" class="sig-pane" style="display:none">
+          <div class="sig-topbar"></div>
+          <div class="sig-canvas-wrap" id="sig-canvas-wrap">
+            <canvas class="sig-canvas" id="sig-canvas" width="1200" height="360"></canvas>
+          </div>
+          <div class="modal-error" id="err-signature-drawn"></div>
+          <div class="sig-actions-spacer" id="sig-drawn-actions">
+            <button type="button" class="sig-clear" onclick="clearSignature()">Wis</button>
+          </div>
+        </div>
+
+        <div class="modal-check">
+          <input type="checkbox" id="akkoord" name="akkoord" value="1" required>
+          <label for="akkoord">Ja, ik ga akkoord met dit voorstel en de van toepassing zijnde algemene voorwaarden.</label>
+        </div>
+        <div class="modal-error" id="err-akkoord"></div>
+
+        <div class="modal-footer">
+          <a class="modal-link" onclick="closeModal()">sluiten</a>
+          <button type="submit" class="modal-save">Opslaan</button>
         </div>
       </form>
     </div>
@@ -344,28 +528,233 @@
   @endif
 
   <script>
-    const sections = document.querySelectorAll('.section');
-    const navItems = document.querySelectorAll('.nav-item');
+    const sections = [...document.querySelectorAll('.section')];
+    const navItems = [...document.querySelectorAll('.nav-item')];
     let current = 0;
 
-    function goTo(index) {
-      sections[current].classList.remove('active');
-      navItems[current].classList.remove('active');
+    function setActive(index) {
       current = index;
-      sections[current].classList.add('active');
-      navItems[current].classList.add('active');
-      document.getElementById('btn-prev').disabled = current === 0;
-      document.getElementById('btn-next').disabled = current === sections.length - 1;
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      navItems.forEach((el, i) => el.classList.toggle('active', i === index));
+      const prev = document.getElementById('btn-prev');
+      const next = document.getElementById('btn-next');
+      if (prev) prev.disabled = index === 0;
+      if (next) next.disabled = index === sections.length - 1;
+    }
+
+    function goTo(index) {
+      const target = sections[index];
+      if (!target) return;
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setActive(index);
     }
 
     function navigate(dir) {
-      const next = current + dir;
-      if (next >= 0 && next < sections.length) goTo(next);
+      const nextIdx = current + dir;
+      if (nextIdx >= 0 && nextIdx < sections.length) goTo(nextIdx);
     }
+
+    // Highlight active sidebar item while scrolling (pdf-reader feel)
+    const io = new IntersectionObserver((entries) => {
+      const visible = entries
+        .filter(e => e.isIntersecting)
+        .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+      if (!visible) return;
+      const idx = Number(visible.target.getAttribute('data-index') || '0');
+      if (!Number.isNaN(idx)) setActive(idx);
+    }, {
+      root: null,
+      threshold: [0.2, 0.35, 0.5, 0.65],
+    });
+    sections.forEach(s => io.observe(s));
+    setActive(0);
 
     function openModal() { document.getElementById('modal').classList.add('open'); }
     function closeModal() { document.getElementById('modal').classList.remove('open'); }
+
+    // ── Acceptatie modal logic (signature) ───────────────────────────────────
+    let sigMode = 'typed';
+    let isDrawing = false;
+    let hasDrawn = false;
+    let last = null;
+    const canvas = document.getElementById('sig-canvas');
+    const ctx = canvas ? canvas.getContext('2d') : null;
+
+    function setSigMode(mode) {
+      sigMode = mode;
+      document.getElementById('signature_type').value = mode;
+      document.getElementById('tab-typed').classList.toggle('active', mode === 'typed');
+      document.getElementById('tab-drawn').classList.toggle('active', mode === 'drawn');
+      document.getElementById('sig-typed').style.display = mode === 'typed' ? 'block' : 'none';
+      document.getElementById('sig-drawn').style.display = mode === 'drawn' ? 'block' : 'none';
+      syncSignatureData();
+    }
+
+    function fitSignatureText() {
+      const box = document.getElementById('sig-preview');
+      const txt = document.getElementById('sig-preview-text');
+      if (!box || !txt) return;
+
+      txt.style.fontSize = '44px';
+      txt.style.transform = 'scale(1)';
+
+      const maxW = box.clientWidth - 28;
+      const w = txt.scrollWidth;
+      if (w <= 0) return;
+      if (w > maxW) {
+        const scale = Math.max(0.6, maxW / w);
+        txt.style.transform = `scale(${scale})`;
+      }
+    }
+
+    function syncSignatureData() {
+      const hidden = document.getElementById('signature_data');
+      if (!hidden) return;
+
+      if (sigMode === 'typed') {
+        const input = document.getElementById('sig-typed-input');
+        hidden.value = (input?.value || '').trim();
+      } else {
+        hidden.value = hasDrawn && canvas ? canvas.toDataURL('image/png') : '';
+      }
+    }
+
+    function clearSignature() {
+      if (!ctx || !canvas) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      hasDrawn = false;
+      last = null;
+      syncSignatureData();
+    }
+
+    function getCanvasPoint(e) {
+      const rect = canvas.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      const x = (clientX - rect.left) * (canvas.width / rect.width);
+      const y = (clientY - rect.top) * (canvas.height / rect.height);
+      return { x, y };
+    }
+
+    function startDraw(e) {
+      if (!ctx || sigMode !== 'drawn') return;
+      isDrawing = true;
+      last = getCanvasPoint(e);
+      e.preventDefault?.();
+    }
+    function moveDraw(e) {
+      if (!ctx || !isDrawing || sigMode !== 'drawn') return;
+      const p = getCanvasPoint(e);
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.strokeStyle = '#111827';
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.moveTo(last.x, last.y);
+      ctx.lineTo(p.x, p.y);
+      ctx.stroke();
+      last = p;
+      hasDrawn = true;
+      syncSignatureData();
+      e.preventDefault?.();
+    }
+    function endDraw() {
+      isDrawing = false;
+      last = null;
+      syncSignatureData();
+    }
+
+    // typed input → preview
+    const typedInput = document.getElementById('sig-typed-input');
+    if (typedInput) {
+      typedInput.addEventListener('input', () => {
+        const v = typedInput.value.trim();
+        const placeholder = document.getElementById('sig-preview-placeholder');
+        const txt = document.getElementById('sig-preview-text');
+        if (!txt || !placeholder) return;
+        if (!v) {
+          placeholder.style.display = 'block';
+          txt.style.display = 'none';
+          txt.textContent = '';
+        } else {
+          placeholder.style.display = 'none';
+          txt.style.display = 'block';
+          txt.textContent = v;
+          fitSignatureText();
+        }
+        syncSignatureData();
+      });
+    }
+
+    // canvas draw listeners
+    if (canvas) {
+      canvas.addEventListener('mousedown', startDraw);
+      canvas.addEventListener('mousemove', moveDraw);
+      window.addEventListener('mouseup', endDraw);
+      canvas.addEventListener('touchstart', startDraw, { passive: false });
+      canvas.addEventListener('touchmove', moveDraw, { passive: false });
+      window.addEventListener('touchend', endDraw);
+      window.addEventListener('resize', () => { if (sigMode === 'typed') fitSignatureText(); });
+    }
+
+    function clearInlineErrors() {
+      const ids = ['err-naam','err-akkoord','err-signature','err-signature-drawn'];
+      ids.forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) { el.textContent = ''; el.classList.remove('show'); }
+      });
+      document.getElementById('accept-naam')?.classList.remove('invalid');
+      document.getElementById('sig-typed-input')?.classList.remove('invalid');
+      document.getElementById('sig-canvas-wrap')?.classList.remove('invalid');
+      document.getElementById('akkoord')?.classList.remove('invalid');
+    }
+
+    function showError(id, msg) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.textContent = msg;
+      el.classList.add('show');
+    }
+
+    // enforce required fields before submit (no browser popups)
+    const form = document.getElementById('accept-form');
+    if (form) {
+      form.addEventListener('submit', (e) => {
+        clearInlineErrors();
+        syncSignatureData();
+        const naam = (document.getElementById('accept-naam')?.value || '').trim();
+        const akkoord = document.getElementById('akkoord')?.checked;
+        const sigVal = (document.getElementById('signature_data')?.value || '').trim();
+
+        let ok = true;
+
+        if (!naam) {
+          ok = false;
+          document.getElementById('accept-naam')?.classList.add('invalid');
+          showError('err-naam', 'Vul uw naam in.');
+        }
+
+        if (!akkoord) {
+          ok = false;
+          showError('err-akkoord', 'U moet akkoord gaan met dit voorstel en de van toepassing zijnde algemene voorwaarden.');
+        }
+
+        if (sigMode === 'typed') {
+          if (!sigVal) {
+            ok = false;
+            document.getElementById('sig-typed-input')?.classList.add('invalid');
+            showError('err-signature', 'Vul uw handtekening in.');
+          }
+        } else {
+          if (!sigVal) {
+            ok = false;
+            document.getElementById('sig-canvas-wrap')?.classList.add('invalid');
+            showError('err-signature-drawn', 'Zet alstublieft uw handtekening in het tekenvak.');
+          }
+        }
+
+        if (!ok) e.preventDefault();
+      });
+    }
   </script>
 </body>
 </html>

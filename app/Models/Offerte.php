@@ -15,6 +15,7 @@ class Offerte extends Model
         'klant_id', 'template_id', 'nummer', 'token', 'status', 'inleiding',
         'subtotaal', 'btw_bedrag', 'totaal', 'geldig_tot',
         'verstuurd_op', 'bekeken_op', 'geaccepteerd_op', 'geaccepteerd_door',
+        'geaccepteerd_akkoord', 'geaccepteerd_handtekening_type', 'geaccepteerd_handtekening',
     ];
 
     protected $casts = [
@@ -22,6 +23,7 @@ class Offerte extends Model
         'verstuurd_op'    => 'datetime',
         'bekeken_op'      => 'datetime',
         'geaccepteerd_op' => 'datetime',
+        'geaccepteerd_akkoord' => 'boolean',
         'subtotaal'       => 'decimal:2',
         'btw_bedrag'      => 'decimal:2',
         'totaal'          => 'decimal:2',

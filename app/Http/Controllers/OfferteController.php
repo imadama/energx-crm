@@ -6,6 +6,7 @@ use App\Models\Klant;
 use App\Models\Offerte;
 use App\Models\OfferteTemplate;
 use App\Models\Product;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
 class OfferteController extends Controller
@@ -225,13 +226,82 @@ class OfferteController extends Controller
         return view('offertes.viewer', compact('offerte'));
     }
 
+    // Download PDF (publieke viewer)
+    public function pdf(string $token)
+    {
+        $offerte = Offerte::where('token', $token)->with('klant', 'regels', 'secties')->firstOrFail();
+
+        $pdf = Pdf::loadView('offertes.viewer-pdf', compact('offerte'))
+            ->setPaper('a4', 'portrait')
+            ->setOptions([
+                'isRemoteEnabled' => true,
+                'isHtml5ParserEnabled' => true,
+            ]);
+
+        $filename = $offerte->nummer . '.pdf';
+        return $pdf->download($filename);
+    }
+
     // Klant keurt offerte goed
     public function accepteer(Request $request, string $token)
     {
-        $request->validate([
-            'naam'  => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-        ]);
+        $request->validate(
+            [
+                'naam'  => 'required|string|max:255',
+                'akkoord' => 'accepted',
+                'signature_type' => 'required|in:typed,drawn',
+                'signature_data' => [
+                    'required',
+                    'string',
+                    function (string $attribute, mixed $value, \Closure $fail) use ($request) {
+                        $type = (string) $request->input('signature_type');
+                        $data = is_string($value) ? trim($value) : '';
+
+                        if ($type === 'typed') {
+                            if ($data === '') {
+                                $fail('Vul uw handtekening in.');
+                                return;
+                            }
+                            return;
+                        }
+
+                        if ($type === 'drawn') {
+                            if ($data === '') {
+                                $fail('Zet alstublieft uw handtekening in het tekenvak.');
+                                return;
+                            }
+                            if (!str_starts_with($data, 'data:image/png;base64,')) {
+                                $fail('De getekende handtekening is ongeldig. Probeer opnieuw te tekenen.');
+                                return;
+                            }
+                            // Basic sanity check to avoid accepting an empty/invalid payload.
+                            if (strlen($data) < 200) {
+                                $fail('De getekende handtekening is te kort. Probeer opnieuw te tekenen.');
+                                return;
+                            }
+                        }
+                    },
+                ],
+                'email' => 'nullable|email|max:255',
+            ],
+            [
+                'naam.required' => 'Vul uw naam in.',
+                'naam.max' => 'Uw naam mag maximaal :max tekens bevatten.',
+                'akkoord.accepted' => 'U moet akkoord gaan met dit voorstel en de van toepassing zijnde algemene voorwaarden.',
+                'signature_type.required' => 'Kies een methode om te ondertekenen.',
+                'signature_type.in' => 'Kies een geldige methode om te ondertekenen.',
+                'signature_data.required' => 'Voeg alstublieft een handtekening toe.',
+                'email.email' => 'Vul een geldig e-mailadres in.',
+                'email.max' => 'Uw e-mailadres mag maximaal :max tekens bevatten.',
+            ],
+            [
+                'naam' => 'naam',
+                'email' => 'e-mailadres',
+                'signature_type' => 'methode',
+                'signature_data' => 'handtekening',
+                'akkoord' => 'akkoord',
+            ],
+        );
 
         $offerte = Offerte::where('token', $token)->firstOrFail();
 
@@ -243,6 +313,9 @@ class OfferteController extends Controller
             'status'            => 'geaccepteerd',
             'geaccepteerd_op'   => now(),
             'geaccepteerd_door' => $request->naam,
+            'geaccepteerd_akkoord' => true,
+            'geaccepteerd_handtekening_type' => $request->signature_type,
+            'geaccepteerd_handtekening' => $request->signature_data,
         ]);
 
         return back()->with('accepted', true);
