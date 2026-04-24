@@ -13,11 +13,13 @@ class Offerte extends Model
 
     protected $fillable = [
         'klant_id', 'template_id', 'nummer', 'token', 'status', 'inleiding',
+        'document',
         'subtotaal', 'btw_bedrag', 'totaal', 'geldig_tot',
         'verstuurd_op', 'bekeken_op', 'geaccepteerd_op', 'geaccepteerd_door',
     ];
 
     protected $casts = [
+        'document'        => 'array',
         'geldig_tot'      => 'date',
         'verstuurd_op'    => 'datetime',
         'bekeken_op'      => 'datetime',
@@ -51,11 +53,6 @@ class Offerte extends Model
         return $this->hasMany(OfferteRegel::class)->orderBy('volgorde');
     }
 
-    public function secties(): HasMany
-    {
-        return $this->hasMany(OfferteSectie::class)->orderBy('volgorde');
-    }
-
     public function template(): BelongsTo
     {
         return $this->belongsTo(OfferteTemplate::class);
@@ -63,12 +60,17 @@ class Offerte extends Model
 
     public function berekenTotalen(): void
     {
-        $subtotaal = $this->regels()->sum('totaal');
-        $this->update([
+        $regels    = $this->regels()->whereNotIn('type', ['tekst', 'subtotaal'])->get();
+        $subtotaal = $regels->sum(fn ($r) => (float) $r->totaal);
+        $btw       = $regels->groupBy('btw_tarief')->sum(function ($groep, $tarief) {
+            return round($groep->sum(fn ($r) => (float) $r->totaal) * $tarief / 100, 2);
+        });
+
+        $this->withoutEvents(fn () => $this->update([
             'subtotaal'  => $subtotaal,
-            'btw_bedrag' => round($subtotaal * 0.21, 2),
-            'totaal'     => round($subtotaal * 1.21, 2),
-        ]);
+            'btw_bedrag' => $btw,
+            'totaal'     => $subtotaal + $btw,
+        ]));
     }
 
     public function getViewerUrlAttribute(): string

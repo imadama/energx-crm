@@ -7,7 +7,7 @@
   </x-slot:actions>
 
   <div class="page-header">
-    <div><h1>Offerte templates</h1><p>Maak per product een standaard template met secties, teksten en prijsregels</p></div>
+    <div><h1>Offerte templates</h1><p>Maak herbruikbare offerte-documenten met blokken, tokens en prijstabellen</p></div>
   </div>
 
   @if($templates->isEmpty())
@@ -38,11 +38,19 @@
           @if($template->beschrijving)
             <div style="font-size:.82rem;color:#aaa;margin-bottom:12px;line-height:1.5">{{ Str::limit($template->beschrijving, 80) }}</div>
           @endif
-          <div style="font-size:.75rem;color:#bbb;margin-bottom:16px">{{ $template->secties_count }} secties</div>
+          <div style="font-size:.75rem;color:#bbb;margin-bottom:16px">
+            {{ count($template->document['paginas'] ?? []) }} pagina('s)
+          </div>
           <div style="display:flex;gap:8px">
-            <a href="{{ route('offerte-templates.edit', $template) }}" class="btn btn-secondary btn-sm" style="flex:1;justify-content:center">Bewerk</a>
+            <a href="{{ route('offerte-templates.editor', $template) }}" class="btn btn-secondary btn-sm" style="flex:1;justify-content:center">Editor</a>
             <a href="{{ route('offertes.create', ['template_id' => $template->id]) }}" class="btn btn-primary btn-sm" style="flex:1;justify-content:center">Gebruik</a>
           </div>
+        </div>
+        <div style="padding:12px 20px;border-top:1px solid #f3f4f6;display:flex;justify-content:flex-end;">
+          <form method="POST" action="{{ route('offerte-templates.destroy', $template) }}" onsubmit="return confirm('Template verwijderen?')">
+            @csrf @method('DELETE')
+            <button class="btn btn-danger btn-sm">Verwijder</button>
+          </form>
         </div>
       </div>
       @endforeach

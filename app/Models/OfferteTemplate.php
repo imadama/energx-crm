@@ -9,15 +9,7 @@ class OfferteTemplate extends Model
 {
     protected $table = 'offerte_templates';
 
-    protected $fillable = ['naam', 'beschrijving', 'categorie'];
+    protected $fillable = ['naam', 'beschrijving', 'categorie', 'document'];
 
-    public function secties(): HasMany
-    {
-        return $this->hasMany(OfferteTemplateSectie::class, 'template_id')->orderBy('volgorde');
-    }
-
-    public function regels(): HasMany
-    {
-        return $this->hasMany(OfferteTemplateRegel::class, 'template_id')->orderBy('volgorde');
-    }
+    protected $casts = ['document' => 'array'];
 }

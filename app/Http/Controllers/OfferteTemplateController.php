@@ -4,20 +4,21 @@ namespace App\Http\Controllers;
 
 use App\Models\OfferteTemplate;
 use App\Models\Product;
+use App\Services\DocumentRenderer;
+use App\Services\TokenResolver;
 use Illuminate\Http\Request;
 
 class OfferteTemplateController extends Controller
 {
     public function index()
     {
-        $templates = OfferteTemplate::withCount('secties')->latest()->get();
+        $templates = OfferteTemplate::latest()->get();
         return view('offerte-templates.index', compact('templates'));
     }
 
     public function create()
     {
-        $producten = Product::actief()->orderBy('categorie')->orderBy('naam')->get();
-        return view('offerte-templates.create', compact('producten'));
+        return view('offerte-templates.create');
     }
 
     public function store(Request $request)
@@ -25,45 +26,35 @@ class OfferteTemplateController extends Controller
         $request->validate([
             'naam'      => 'required|string|max:255',
             'categorie' => 'nullable|string|max:255',
-            'secties'   => 'array',
-            'regels'    => 'array',
         ]);
 
         $template = OfferteTemplate::create([
             'naam'        => $request->naam,
             'beschrijving'=> $request->beschrijving,
             'categorie'   => $request->categorie,
+            'document'    => DocumentRenderer::leegDocument(),
         ]);
 
-        foreach (($request->secties ?? []) as $i => $sectie) {
-            $inhoud = $this->parseSectieInhoud($sectie);
-            $template->secties()->create([
-                'type'    => $sectie['type'],
-                'titel'   => $sectie['titel'],
-                'inhoud'  => $inhoud,
-                'volgorde'=> $i,
-            ]);
-        }
-
-        foreach (($request->regels ?? []) as $i => $regel) {
-            $template->regels()->create([
-                'product_id'   => $regel['product_id'] ?: null,
-                'naam'         => $regel['naam'],
-                'beschrijving' => $regel['beschrijving'] ?? null,
-                'aantal'       => $regel['aantal'] ?? 1,
-                'eenheidsprijs'=> $regel['eenheidsprijs'] ?? 0,
-                'volgorde'     => $i,
-            ]);
-        }
-
-        return redirect()->route('offerte-templates.index')->with('success', 'Template aangemaakt.');
+        return redirect()->route('offerte-templates.editor', $template)->with('success', 'Template aangemaakt.');
     }
 
-    public function edit(OfferteTemplate $offerteTemplate)
+    public function editor(OfferteTemplate $offerteTemplate)
     {
-        $offerteTemplate->load('secties', 'regels.product');
         $producten = Product::actief()->orderBy('categorie')->orderBy('naam')->get();
-        return view('offerte-templates.edit', compact('offerteTemplate', 'producten'));
+        $tokens    = TokenResolver::beschikbareTokens();
+
+        if (!$offerteTemplate->document) {
+            $offerteTemplate->update(['document' => DocumentRenderer::leegDocument()]);
+        }
+
+        return view('offerte-templates.editor', compact('offerteTemplate', 'producten', 'tokens'));
+    }
+
+    public function updateDocument(Request $request, OfferteTemplate $offerteTemplate)
+    {
+        $request->validate(['document' => 'required|array']);
+        $offerteTemplate->update(['document' => $request->document]);
+        return response()->json(['ok' => true]);
     }
 
     public function update(Request $request, OfferteTemplate $offerteTemplate)
@@ -74,28 +65,6 @@ class OfferteTemplateController extends Controller
             'categorie'   => $request->categorie,
         ]);
 
-        $offerteTemplate->secties()->delete();
-        foreach (($request->secties ?? []) as $i => $sectie) {
-            $offerteTemplate->secties()->create([
-                'type'    => $sectie['type'],
-                'titel'   => $sectie['titel'],
-                'inhoud'  => $this->parseSectieInhoud($sectie),
-                'volgorde'=> $i,
-            ]);
-        }
-
-        $offerteTemplate->regels()->delete();
-        foreach (($request->regels ?? []) as $i => $regel) {
-            $offerteTemplate->regels()->create([
-                'product_id'   => $regel['product_id'] ?: null,
-                'naam'         => $regel['naam'],
-                'beschrijving' => $regel['beschrijving'] ?? null,
-                'aantal'       => $regel['aantal'] ?? 1,
-                'eenheidsprijs'=> $regel['eenheidsprijs'] ?? 0,
-                'volgorde'     => $i,
-            ]);
-        }
-
         return redirect()->route('offerte-templates.index')->with('success', 'Template bijgewerkt.');
     }
 
@@ -103,20 +72,5 @@ class OfferteTemplateController extends Controller
     {
         $offerteTemplate->delete();
         return redirect()->route('offerte-templates.index')->with('success', 'Template verwijderd.');
-    }
-
-    private function parseSectieInhoud(array $sectie): array
-    {
-        return match($sectie['type']) {
-            'introductie' => ['tekst' => $sectie['inhoud']['tekst'] ?? ''],
-            'product'     => [
-                'beschrijving' => $sectie['inhoud']['beschrijving'] ?? '',
-                'specs'        => $sectie['inhoud']['specs'] ?? [],
-            ],
-            'werkwijze'   => ['stappen' => $sectie['inhoud']['stappen'] ?? []],
-            'acceptatie'  => ['tekst' => $sectie['inhoud']['tekst'] ?? 'Ben je akkoord met deze offerte? Klik op de knop hieronder om digitaal te ondertekenen.'],
-            'tekst'       => ['tekst' => $sectie['inhoud']['tekst'] ?? ''],
-            default       => [],
-        };
     }
 }
