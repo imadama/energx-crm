@@ -36,7 +36,7 @@
     transition:background .15s; margin-bottom:3px; }
   .page-thumb:hover { background:rgba(255,255,255,.06); color:rgba(255,255,255,.9); }
   .page-thumb.active { background:rgba(45,189,110,.12); color:#fff; }
-  .page-thumb-actions { display:flex; gap:3px; opacity:0; transition:opacity .15s; }
+  .page-thumb-actions { display:flex; gap:3px; opacity:.45; transition:opacity .15s; }
   .page-thumb:hover .page-thumb-actions { opacity:1; }
   .add-btn { width:100%; padding:8px 10px; background:rgba(255,255,255,.05); border:1px dashed rgba(255,255,255,.15);
     border-radius:7px; color:rgba(255,255,255,.5); font-family:var(--font-body); font-size:.8rem;
@@ -85,19 +85,22 @@
   .document-content { flex:1; min-width:0; }
 
   /* ADD ELEMENT */
-  .add-element-bar { padding:12px; display:flex; justify-content:center; }
-  .add-btn--element { width:auto; padding:8px 20px; border-radius:20px; }
+  .add-element-bar { padding:16px; display:flex; justify-content:center; border-top:2px dashed #e5e7eb; margin:0 -1px; }
   .add-element-dropdown { position:relative; }
-  .element-type-menu { position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%);
+  .add-btn--element { width:auto; padding:9px 24px; border-radius:20px;
+    background:#f0fdf4 !important; border:1px solid rgba(45,189,110,.5) !important;
+    color:#15803d !important; font-weight:600; font-size:.85rem; }
+  .add-btn--element:hover { background:#dcfce7 !important; border-color:rgba(45,189,110,.8) !important; color:#166534 !important; }
+  .element-type-menu { position:absolute; top:calc(100% + 6px); left:50%; transform:translateX(-50%);
     background:#fff; border:1px solid #e5e7eb; border-radius:10px; padding:6px;
-    box-shadow:0 8px 24px rgba(0,0,0,.12); z-index:100; min-width:220px; white-space:nowrap; }
+    box-shadow:0 8px 24px rgba(0,0,0,.14); z-index:500; min-width:220px; white-space:nowrap; }
   .element-type-item { display:flex; align-items:center; width:100%; padding:9px 12px;
     background:none; border:none; border-radius:7px; cursor:pointer; font-family:var(--font-body);
     font-size:.85rem; color:#333; transition:background .1s; text-align:left; }
   .element-type-item:hover { background:#f3f4f6; }
 
   /* RIGHT PANEL */
-  .right-panel { position:fixed; top:var(--topbar); right:-var(--right-panel); bottom:0;
+  .right-panel { position:fixed; top:var(--topbar); right:-280px; bottom:0;
     width:var(--right-panel); background:#fff; border-left:1px solid #e5e7eb;
     overflow-y:auto; z-index:100; transition:right .25s ease; }
   .right-panel.open { right:0; }
@@ -121,10 +124,14 @@
   /* ICON BUTTONS */
   .icon-btn { display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px;
     background:none; border:1px solid #e5e7eb; border-radius:5px; cursor:pointer;
-    font-size:.75rem; color:#666; transition:all .15s; }
+    font-size:.75rem; color:#555; transition:all .15s; }
   .icon-btn:hover { background:#f3f4f6; }
   .icon-btn:disabled { opacity:.3; cursor:default; }
   .icon-btn--danger:hover { background:#fee2e2; color:#dc2626; border-color:#fca5a5; }
+  /* icon-btns inside dark left panel */
+  .left-panel .icon-btn { color:rgba(255,255,255,.7); border-color:rgba(255,255,255,.2); }
+  .left-panel .icon-btn:hover { background:rgba(255,255,255,.12); color:#fff; border-color:rgba(255,255,255,.4); }
+  .left-panel .icon-btn--danger:hover { background:rgba(220,38,38,.25); color:#fca5a5; border-color:rgba(220,38,38,.4); }
 
   /* DOCUMENT BLOKKEN (editor mode) */
   .blok-tekst { outline:none; min-height:40px; }

@@ -1,7 +1,7 @@
 <script>
-function pageEditor(document, regels, producten, saveUrl, regelStoreUrl, regelBaseUrl, uploadUrl, tokens) {
+function pageEditor(docData, regels, producten, saveUrl, regelStoreUrl, regelBaseUrl, uploadUrl, tokens) {
   return {
-    document,
+    document: docData,
     regels,
     producten,
     tokens,
@@ -39,8 +39,8 @@ function pageEditor(document, regels, producten, saveUrl, regelStoreUrl, regelBa
         this.initQuillInstances();
       });
 
-      document.addEventListener('mousemove', (e) => this.onResize(e));
-      document.addEventListener('mouseup', () => this.stopResize());
+      window.addEventListener('mousemove', (e) => this.onResize(e));
+      window.addEventListener('mouseup', () => this.stopResize());
     },
 
     // ── Pagina's ─────────────────────────────────────────────────────────────
@@ -181,6 +181,7 @@ function pageEditor(document, regels, producten, saveUrl, regelStoreUrl, regelBa
       const rect = container.getBoundingClientRect();
 
       this.resizing = {
+        type: 'content',
         paginaId, elemId, zijde,
         startX: event.clientX,
         containerWidth: rect.width,
@@ -192,6 +193,10 @@ function pageEditor(document, regels, producten, saveUrl, regelStoreUrl, regelBa
 
     onResize(event) {
       if (!this.resizing) return;
+      if (this.resizing.type === 'kolom') {
+        this.onKolomResize(event);
+        return;
+      }
       const { startX, containerWidth, startBreedte, startOffset, element, zijde } = this.resizing;
       const delta = event.clientX - startX;
       const deltaPct = (delta / containerWidth) * 100;
@@ -302,7 +307,7 @@ function pageEditor(document, regels, producten, saveUrl, regelStoreUrl, regelBa
     // ── Tokens ────────────────────────────────────────────────────────────────
 
     kopieerToken(token, label) {
-      const tekst = `{{ ${token} }}`;
+      const tekst = '{{ ' + token + ' }}';
       navigator.clipboard.writeText(tekst).then(() => {
         this.tokenKopieerdLabel = label;
         clearTimeout(this.tokenTimer);
@@ -328,13 +333,14 @@ function pageEditor(document, regels, producten, saveUrl, regelStoreUrl, regelBa
       const element = pagina?.elementen.find(e => e.id === elemId);
       if (!element) return;
       const container = event.target.closest('.blok-2kolommen');
+      if (!container) return;
       this.resizing = {
+        type: 'kolom',
         paginaId, elemId,
         startX: event.clientX,
         containerWidth: container.getBoundingClientRect().width,
         startBreedte: element.inhoud.kolom1_breedte_pct ?? 50,
         element,
-        type: 'kolom',
       };
     },
 
@@ -386,10 +392,4 @@ function pageEditor(document, regels, producten, saveUrl, regelStoreUrl, regelBa
     },
   };
 }
-
-// Handle global mousemove/mouseup for resize
-window.addEventListener('mousemove', (e) => {
-  const root = document.querySelector('[x-data]')?.__x?.$data;
-  if (root?.resizing?.type === 'kolom') root.onKolomResize(e);
-});
 </script>

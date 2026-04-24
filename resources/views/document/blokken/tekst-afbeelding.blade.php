@@ -4,22 +4,35 @@
   {{-- Afbeelding links --}}
   <template x-if="element.inhoud.afbeelding_links">
     <div class="kolom" :style="'width:' + (100 - (element.inhoud.tekst_breedte_pct ?? 60)) + '%;padding-right:12px;'">
-      @include('document.blokken._afbeelding-upload')
+      <template x-if="activeElementId === element.id">
+        @include('document.blokken._afbeelding-upload')
+      </template>
+      <template x-if="activeElementId !== element.id && element.inhoud.afbeelding_url">
+        <img :src="element.inhoud.afbeelding_url" style="max-width:100%;height:auto;display:block;border-radius:3px;">
+      </template>
     </div>
   </template>
 
   {{-- Tekst --}}
   <div class="kolom" :style="'width:' + (element.inhoud.tekst_breedte_pct ?? 60) + '%;'">
-    <div :id="'quill-' + element.id + '-tekst'" class="quill-veld"
-         x-effect="
-           const el = document.getElementById('quill-' + element.id + '-tekst');
-           if (el && !el._quill) {
-             $nextTick(() => initQuillVeld(element.id + '-tekst', (html) => {
-               element.inhoud.tekst_html = html;
-               debouncedSave();
-             }, element.inhoud.tekst_html || ''));
-           }
-         ">
+    {{-- View mode (inactive) --}}
+    <div x-show="activeElementId !== element.id" style="min-height:40px;">
+      <div x-html="element.inhoud.tekst_html || ''"></div>
+    </div>
+
+    {{-- Edit mode (active) --}}
+    <div x-show="activeElementId === element.id" style="display:none">
+      <div :id="'quill-' + element.id + '-tekst'" class="quill-veld"
+           x-effect="
+             const el = window.document.getElementById('quill-' + element.id + '-tekst');
+             if (el && !el._quill) {
+               $nextTick(() => initQuillVeld(element.id + '-tekst', (html) => {
+                 element.inhoud.tekst_html = html;
+                 debouncedSave();
+               }, element.inhoud.tekst_html || ''));
+             }
+           ">
+      </div>
     </div>
   </div>
 
@@ -33,7 +46,12 @@
   {{-- Afbeelding rechts --}}
   <template x-if="!element.inhoud.afbeelding_links">
     <div class="kolom" :style="'width:' + (100 - (element.inhoud.tekst_breedte_pct ?? 60)) + '%;padding-left:12px;'">
-      @include('document.blokken._afbeelding-upload')
+      <template x-if="activeElementId === element.id">
+        @include('document.blokken._afbeelding-upload')
+      </template>
+      <template x-if="activeElementId !== element.id && element.inhoud.afbeelding_url">
+        <img :src="element.inhoud.afbeelding_url" style="max-width:100%;height:auto;display:block;border-radius:3px;">
+      </template>
     </div>
   </template>
 
