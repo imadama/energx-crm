@@ -9,7 +9,7 @@ class OfferteTemplate extends Model
 {
     protected $table = 'offerte_templates';
 
-    protected $fillable = ['naam', 'beschrijving', 'categorie'];
+    protected $fillable = ['naam', 'beschrijving', 'categorie', 'identifier'];
 
     public function secties(): HasMany
     {

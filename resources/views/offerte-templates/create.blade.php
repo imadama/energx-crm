@@ -37,6 +37,12 @@
                 <label class="form-label">Beschrijving</label>
                 <input class="form-input" type="text" name="beschrijving" placeholder="Korte omschrijving van deze template">
               </div>
+              <div class="form-group" style="grid-column:1/-1">
+                <label class="form-label">Identifier (API)</label>
+                <input class="form-input" type="text" name="identifier" value="{{ old('identifier') }}" placeholder="bijv. zaptec_go_standaard">
+                @error('identifier')<div class="form-error">{{ $message }}</div>@enderror
+                <div style="font-size:.78rem;color:#888;margin-top:6px">Gebruik letters/cijfers/underscore/dash. Moet uniek zijn.</div>
+              </div>
             </div>
           </div>
         </div>

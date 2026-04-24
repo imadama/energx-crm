@@ -1,0 +1,99 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Energx CRM Offer API",
+    "version": "1.0.0"
+  },
+  "servers": [
+    { "url": "/api" }
+  ],
+  "paths": {
+    "/v1/offer": {
+      "post": {
+        "summary": "Create offer (concept) from template + details",
+        "operationId": "createOffer",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateOfferRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Offer created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CreateOfferResponse" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ValidationError" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CreateOfferRequest": {
+        "type": "object",
+        "required": ["customer", "communicationPreference", "offerTemplateId", "details"],
+        "properties": {
+          "customer": {
+            "type": "object",
+            "required": ["name", "email", "country"],
+            "properties": {
+              "name": { "type": "string" },
+              "email": { "type": "string", "format": "email" },
+              "phone": { "type": "string", "nullable": true },
+              "street": { "type": "string", "nullable": true },
+              "housenumber": { "type": "string", "nullable": true },
+              "postalcode": { "type": "string", "nullable": true },
+              "city": { "type": "string", "nullable": true },
+              "country": { "type": "string", "enum": ["NL", "BE"] }
+            }
+          },
+          "communicationPreference": { "type": "string", "enum": ["email", "whatsapp"] },
+          "offerTemplateId": { "type": "string", "description": "Matches offerte_templates.identifier" },
+          "details": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Dynamic key/values. Keys must be configured in API velden."
+          }
+        }
+      },
+      "CreateOfferResponse": {
+        "type": "object",
+        "required": ["offerteId", "offerteNummer", "viewerUrl", "warnings"],
+        "properties": {
+          "offerteId": { "type": "integer" },
+          "offerteNummer": { "type": "string" },
+          "viewerUrl": { "type": "string" },
+          "warnings": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "ValidationError": {
+        "type": "object",
+        "properties": {
+          "message": { "type": "string" },
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+

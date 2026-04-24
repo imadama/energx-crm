@@ -236,6 +236,7 @@ class OfferteController extends Controller
             ->setOptions([
                 'isRemoteEnabled' => true,
                 'isHtml5ParserEnabled' => true,
+                'chroot' => public_path(),
             ]);
 
         $filename = $offerte->nummer . '.pdf';

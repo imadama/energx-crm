@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>{{ $offerte->nummer }} — Energx offerte</title>
+  <base href="{{ config('app.url') }}/">
   <style>
     @page { size: A4 portrait; margin: 0; }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -18,7 +19,7 @@
     @font-face {
       font-family: 'Outfit';
       font-style: normal;
-      font-weight: 400;
+      font-weight: 300;
       src: url('{{ public_path('fonts/outfit/Outfit.ttf') }}') format('truetype');
     }
     @font-face {
@@ -43,70 +44,73 @@
       background: #fff;
       overflow: hidden;
     }
+    img { max-width: 100%; height: auto; }
 
     /* VOORBLAD */
     .cover-hero-placeholder {
       width: 100%;
       height: 380px;
-      background: linear-gradient(135deg, var(--green-800) 0%, #1a5c35 45%, var(--night) 100%);
-      display: block;
-      text-align: center;
-      padding-top: 120px;
+      background: url('file://{{ public_path('pdf-assets/cover-hero.png') }}') no-repeat center center;
+      background-size: cover;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
-    .cover-hero-title { font-family: var(--font-display); font-size: 42pt; color: #fff; }
-    .cover-hero-sub { font-size: 11pt; color: rgba(255,255,255,.65); margin-top: 12px; }
+    .cover-hero-title { font-family: var(--font-display); font-size: 56px; color: #fff; }
+    .cover-hero-sub { font-size: 14px; color: rgba(255,255,255,.55); margin-top: 6px; }
     .cover-body { padding: 36px 48px 40px; }
     .cover-meta { padding-bottom: 28px; border-bottom: 1px solid #f0f0f0; margin-bottom: 28px; }
     .meta-block { display: inline-block; vertical-align: top; width: 31%; margin-right: 2%; }
     .meta-block:last-child { margin-right: 0; }
-    .meta-label { font-size: 8.5pt; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #aaa; margin-bottom: 2mm; }
-    .meta-value { font-size: 11pt; font-weight: 700; color: #1a1a1a; }
-    .meta-value small { display: block; font-weight: 400; color: #777; font-size: 9.5pt; margin-top: 1mm; }
+    .meta-label { font-size: .7rem; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: #aaa; margin-bottom: 5px; }
+    .meta-value { font-size: .95rem; font-weight: 600; color: #1a1a1a; }
+    .meta-value small { display: block; font-weight: 400; color: #777; font-size: .85rem; margin-top: 2px; }
 
     /* CONTENT */
     .section-content { padding: 48px; }
     .section-title {
       font-family: var(--font-display);
-      font-size: 24pt;
+      font-size: 2rem;
       color: var(--green-800);
-      margin-bottom: 10mm;
-      padding-bottom: 6mm;
+      margin-bottom: 28px;
+      padding-bottom: 16px;
       border-bottom: 2px solid var(--green-400);
     }
-    .intro-text p { color: #4a4a4a; line-height: 1.75; margin-bottom: 6mm; font-size: 11pt; }
+    .intro-text p { color: #4a4a4a; line-height: 1.85; margin-bottom: 16px; font-size: .93rem; }
 
     /* PRIJZEN */
     .price-table { width: 100%; border-collapse: collapse; }
-    .price-table th { text-align: left; padding: 4mm 4mm; font-size: 8.5pt; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: #999; border-bottom: 2px solid #e8e8e8; }
+    .price-table th { text-align: left; padding: 10px 14px; font-size: .7rem; font-weight: 600; text-transform: uppercase; letter-spacing: .07em; color: #999; border-bottom: 2px solid #e8e8e8; }
     .price-table th:last-child, .price-table td:last-child { text-align: right; }
-    .price-table td { padding: 5mm 4mm; font-size: 10.5pt; color: #333; border-bottom: 1px solid #f2f2f2; vertical-align: top; }
+    .price-table td { padding: 14px 14px; font-size: .88rem; color: #333; border-bottom: 1px solid #f2f2f2; vertical-align: top; }
     .item-name { font-weight: 700; color: #1a1a1a; }
-    .item-desc { font-size: 9pt; color: #999; margin-top: 1mm; }
-    .price-totals { margin-top: 6mm; text-align: right; }
-    .total-row { font-size: 10.5pt; color: #666; margin-top: 2mm; }
-    .total-row.grand { font-size: 12.5pt; font-weight: 800; color: var(--green-800); padding-top: 4mm; border-top: 2px solid #e8e8e8; margin-top: 4mm; }
+    .item-desc { font-size: .78rem; color: #999; margin-top: 3px; }
+    .price-totals { margin-top: 12px; text-align: right; }
+    .total-row { font-size: .88rem; color: #666; margin-top: 7px; }
+    .total-row.grand { font-size: 1.05rem; font-weight: 700; color: var(--green-800); padding-top: 12px; border-top: 2px solid #e8e8e8; margin-top: 8px; }
 
     /* PRODUCT */
     .product-layout { width: 100%; }
     .product-col { display: inline-block; vertical-align: top; width: 48%; }
     .product-col + .product-col { margin-left: 4%; }
-    .spec-list { margin-top: 6mm; }
-    .spec-row { display: block; padding: 3mm 0; border-bottom: 1px solid #f2f2f2; font-size: 10pt; }
+    .spec-list { margin-top: 16px; }
+    .spec-row { display: block; padding: 9px 0; border-bottom: 1px solid #f2f2f2; font-size: .85rem; }
     .spec-key { color: #888; display: inline-block; width: 55%; }
     .spec-val { font-weight: 700; color: #1a1a1a; display: inline-block; width: 43%; text-align: right; }
-    .product-info p { color: #555; line-height: 1.65; font-size: 10.8pt; margin-bottom: 5mm; }
+    .product-info p { color: #555; line-height: 1.75; font-size: .9rem; margin-bottom: 14px; }
 
     /* WERKWIJZE */
-    .step { padding: 6mm 0; border-bottom: 1px solid #f2f2f2; }
+    .step { padding: 20px 0; border-bottom: 1px solid #f2f2f2; }
     .step:last-child { border-bottom: none; }
-    .step-num { display:inline-block; width: 9mm; height: 9mm; border-radius: 50%; background: var(--green-400); color:#fff; font-weight: 800; font-size: 10pt; text-align:center; line-height: 9mm; margin-right: 4mm; }
-    .step-title { font-weight: 800; color: #1a1a1a; margin-bottom: 2mm; font-size: 11pt; display:inline-block; }
-    .step-desc { font-size: 10pt; color: #666; line-height: 1.55; margin-left: 13mm; }
+    .step-num { display:inline-block; width: 34px; height: 34px; border-radius: 50%; background: var(--green-400); color:#fff; font-weight: 700; font-size: .82rem; text-align:center; line-height: 34px; margin-right: 12px; }
+    .step-title { font-weight: 600; color: #1a1a1a; margin-bottom: 5px; font-size: .9rem; display:inline-block; }
+    .step-desc { font-size: .85rem; color: #666; line-height: 1.65; margin-left: 46px; }
 
     /* ACCEPTATIE */
-    .accept-page { padding: 22mm 16mm; text-align: center; }
-    .accept-title { font-family: var(--font-display); font-size: 22pt; color: var(--green-800); margin-bottom: 6mm; }
-    .accept-desc { color: #666; font-size: 11pt; line-height: 1.6; margin: 0 auto; max-width: 140mm; }
+    .accept-page { padding: 64px 48px; text-align: center; }
+    .accept-title { font-family: var(--font-display); font-size: 1.9rem; color: var(--green-800); margin-bottom: 12px; }
+    .accept-desc { color: #666; font-size: .93rem; line-height: 1.75; margin: 0 auto; max-width: 460px; }
   </style>
 </head>
 <body>
@@ -205,7 +209,9 @@
           <h2 class="section-title">{{ $sectie->titel }}</h2>
           <div class="product-layout">
             <div class="product-col">
-              <div style="width:100%;height:70mm;background:#f0f0f0;border-radius:6mm;display:block;text-align:center;line-height:70mm;color:#bbb;font-size:36pt;">⚡</div>
+              <div style="width:100%;height:344px;border-radius:12px;overflow:hidden;">
+                <img src="file://{{ public_path('pdf-assets/product-placeholder.png') }}" style="width:100%;height:344px;display:block;" alt="">
+              </div>
               @if(!empty($inhoud['specs']))
               <div class="spec-list">
                 @foreach($inhoud['specs'] as $spec)

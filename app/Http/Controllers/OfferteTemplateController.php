@@ -25,6 +25,7 @@ class OfferteTemplateController extends Controller
         $request->validate([
             'naam'      => 'required|string|max:255',
             'categorie' => 'nullable|string|max:255',
+            'identifier'=> 'nullable|string|max:255|regex:/^[a-zA-Z0-9_-]+$/|unique:offerte_templates,identifier',
             'secties'   => 'array',
             'regels'    => 'array',
         ]);
@@ -33,6 +34,7 @@ class OfferteTemplateController extends Controller
             'naam'        => $request->naam,
             'beschrijving'=> $request->beschrijving,
             'categorie'   => $request->categorie,
+            'identifier'  => $request->identifier ?: null,
         ]);
 
         foreach (($request->secties ?? []) as $i => $sectie) {
@@ -68,10 +70,17 @@ class OfferteTemplateController extends Controller
 
     public function update(Request $request, OfferteTemplate $offerteTemplate)
     {
+        $request->validate([
+            'naam'      => 'required|string|max:255',
+            'categorie' => 'nullable|string|max:255',
+            'identifier'=> 'nullable|string|max:255|regex:/^[a-zA-Z0-9_-]+$/|unique:offerte_templates,identifier,' . $offerteTemplate->id,
+        ]);
+
         $offerteTemplate->update([
             'naam'        => $request->naam,
             'beschrijving'=> $request->beschrijving,
             'categorie'   => $request->categorie,
+            'identifier'  => $request->identifier ?: null,
         ]);
 
         $offerteTemplate->secties()->delete();

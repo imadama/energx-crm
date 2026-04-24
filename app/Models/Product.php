@@ -11,11 +11,18 @@ class Product extends Model
 
     protected $fillable = [
         'naam', 'beschrijving', 'prijs', 'categorie', 'merk', 'actief',
+        'order',
+        'generator_mode',
+        'generator_conditions',
+        'generator_value_rules',
     ];
 
     protected $casts = [
         'prijs'  => 'decimal:2',
         'actief' => 'boolean',
+        'order' => 'integer',
+        'generator_conditions' => 'array',
+        'generator_value_rules' => 'array',
     ];
 
     public function scopeActief(Builder $query): Builder
