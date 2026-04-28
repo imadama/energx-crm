@@ -9,6 +9,9 @@ php artisan storage:link --quiet 2>/dev/null || true
 # Database migrations (--force voor production)
 php artisan migrate --force
 
+# Seed admin user als de users tabel leeg is
+php artisan db:seed --class=DemoSeeder --force 2>/dev/null || true
+
 # Cache voor snelheid
 php artisan config:cache
 php artisan route:cache
