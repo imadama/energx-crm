@@ -1,24 +1,19 @@
 FROM php:8.4-fpm-alpine
 
+# php-extension-installer — pre-built binaries, geen broncode compilatie
+COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
+
 # System dependencies
 RUN apk add --no-cache \
     nginx \
     supervisor \
     curl \
     unzip \
-    git \
-    libpng-dev \
-    libjpeg-turbo-dev \
-    freetype-dev \
-    oniguruma-dev \
-    libxml2-dev \
-    libzip-dev \
-    icu-dev
+    git
 
-# PHP extensions
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
- && docker-php-ext-install \
-    pdo pdo_mysql \
+# PHP extensions (pre-built, razendsnel)
+RUN install-php-extensions \
+    pdo_mysql \
     mbstring \
     xml \
     gd \
