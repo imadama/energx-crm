@@ -12,9 +12,23 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', fn() => redirect()->route('dashboard'));
 Route::get('/api/docs', fn () => view('docs.swagger'))->name('docs.swagger');
 
+use App\Http\Controllers\ContactpersoonController;
+
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::resource('klanten', KlantController::class)->parameters(['klanten' => 'klant']);
+    
+    // Contactpersonen routes
+    Route::get('klanten/{klant}/contactpersonen/create', [ContactpersoonController::class, 'create'])->name('contactpersonen.create');
+    Route::post('klanten/{klant}/contactpersonen', [ContactpersoonController::class, 'store'])->name('contactpersonen.store');
+    Route::get('contactpersonen/{contactpersoon}/edit', [ContactpersoonController::class, 'edit'])->name('contactpersonen.edit');
+    Route::put('contactpersonen/{contactpersoon}', [ContactpersoonController::class, 'update'])->name('contactpersonen.update');
+    Route::delete('contactpersonen/{contactpersoon}', [ContactpersoonController::class, 'destroy'])->name('contactpersonen.destroy');
+
+    // Tickets routes
+    Route::resource('tickets', App\Http\Controllers\TicketController::class)->except(['edit', 'destroy']);
+    Route::post('tickets/{ticket}/reacties', [App\Http\Controllers\TicketReactieController::class, 'store'])->name('ticket-reacties.store');
+
     Route::resource('producten', ProductController::class)->parameters(['producten' => 'product']);
     Route::patch('producten-volgorde', [ProductController::class, 'updateOrder'])->name('producten.order.update');
     Route::resource('offertes', OfferteController::class);

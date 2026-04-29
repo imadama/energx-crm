@@ -67,10 +67,9 @@ class DemoSeeder extends Seeder
 
         // ── Demo klant ───────────────────────────────────────
         $klant = Klant::updateOrCreate(
-            ['email' => 'imadamazyan@gmail.com'],
+            ['naam' => 'Imad Amazyan'],
             [
-                'naam'       => 'Imad Amazyan',
-                'telefoon'   => '0685023112',
+                'soort'      => 'particulier',
                 'straat'     => 'Karel de Stoutestraat',
                 'huisnummer' => '4',
                 'postcode'   => '4205 HM',
@@ -79,7 +78,16 @@ class DemoSeeder extends Seeder
                 'notities'   => null,
             ]
         );
-        $this->command->info('Klant aangemaakt: ' . $klant->naam);
+
+        $klant->contactpersonen()->firstOrCreate(
+            ['email' => 'imadamazyan@gmail.com'],
+            [
+                'voornaam'   => 'Imad',
+                'achternaam' => 'Amazyan',
+                'telefoon'   => '0685023112',
+            ]
+        );
+        $this->command->info('Klant en contactpersoon aangemaakt: ' . $klant->naam);
 
         // ── Demo offerte ─────────────────────────────────────
         $template = \App\Models\OfferteTemplate::where('naam', 'like', '%Standaard installatie%')->first();
@@ -128,5 +136,35 @@ class DemoSeeder extends Seeder
         }
 
         $this->command->info('Demo offerte aangemaakt: ' . $offerte->nummer);
+
+        // ── Demo ticket ──────────────────────────────────────
+        $contactpersoon = $klant->contactpersonen->first();
+        $ticket = \App\Models\Ticket::create([
+            'contactpersoon_id' => $contactpersoon->id,
+            'titel'             => 'Vraag over levertijd Zaptec Go',
+            'status'            => 'open',
+        ]);
+
+        $ticket->reacties()->create([
+            'type'   => 'klant',
+            'bron'   => 'email',
+            'inhoud' => "<p>Beste Energx,</p><p>Ik heb de offerte zojuist goedgekeurd. Kunnen jullie aangeven wat de verwachte levertijd is voor de Zaptec Go?</p><p>Alvast bedankt!</p><p>Met vriendelijke groet,<br>Imad Amazyan</p>",
+        ]);
+
+        $ticket->reacties()->create([
+            'type'         => 'intern',
+            'gebruiker_id' => 1, // Admin gebruiker
+            'bron'         => 'email',
+            'inhoud'       => "<p>Beste Imad,</p><p>Bedankt voor de goedkeuring! De huidige levertijd voor de Zaptec Go is circa 2 weken. Zodra de laadpaal binnen is nemen we contact op om de installatiedatum definitief in te plannen.</p><p>Met vriendelijke groet,<br>Team Energx</p>",
+        ]);
+
+        $ticket->reacties()->create([
+            'type'         => 'notitie',
+            'gebruiker_id' => 1,
+            'bron'         => 'portaal',
+            'inhoud'       => "<p><strong>Let op:</strong> Installatie via de kruipruimte. Zorg dat we extra bekabeling meenemen (min 15m voor de zekerheid).</p>",
+        ]);
+
+        $this->command->info('Demo ticket aangemaakt: ' . $ticket->nummer);
     }
 }
