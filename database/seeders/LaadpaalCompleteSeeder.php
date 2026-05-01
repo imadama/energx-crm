@@ -160,6 +160,22 @@ class LaadpaalCompleteSeeder extends Seeder
                 'generator_mode'        => 'conditional',
                 'generator_conditions'  => [
                     ['and' => [['field' => 'situatie', 'op' => 'eq', 'value' => 'kruipruimte']]],
+                ],
+                'generator_value_rules' => null,
+            ]
+        );
+
+        Product::updateOrCreate(
+            ['naam' => 'Standaard installatie (kruipruimte + graafwerk)'],
+            [
+                'beschrijving'          => "- Wandmontage\n- Aardlekautomaat incl plaatsing\n- Tot 10m Voedings- en signaalkabel\n- Kabel via kruipruimte\n- Incl 5m graaf/straatwerk",
+                'prijs'                 => 699.00,
+                'categorie'             => 'installatie',
+                'merk'                  => null,
+                'actief'                => true,
+                'order'                 => 52,
+                'generator_mode'        => 'conditional',
+                'generator_conditions'  => [
                     ['and' => [['field' => 'situatie', 'op' => 'eq', 'value' => 'graafwerk']]],
                 ],
                 'generator_value_rules' => null,
@@ -174,13 +190,13 @@ class LaadpaalCompleteSeeder extends Seeder
                 'categorie'             => 'installatie',
                 'merk'                  => null,
                 'actief'                => true,
-                'order'                 => 52,
+                'order'                 => 53,
                 'generator_mode'        => 'conditional',
                 'generator_conditions'  => [
-                    ['and' => [['field' => 'meters_kabel', 'op' => 'gt', 'value' => 0]]],
+                    ['and' => [['field' => 'meters_kabel', 'op' => 'gt', 'value' => 10]]],
                 ],
                 'generator_value_rules' => [
-                    'aantal' => ['enabled' => true, 'field' => 'meters_kabel', 'op' => '+', 'delta' => 0],
+                    'aantal' => ['enabled' => true, 'field' => 'meters_kabel', 'op' => '-', 'delta' => 10],
                     'prijs'  => ['enabled' => false],
                 ],
             ]
@@ -194,13 +210,13 @@ class LaadpaalCompleteSeeder extends Seeder
                 'categorie'             => 'installatie',
                 'merk'                  => null,
                 'actief'                => true,
-                'order'                 => 53,
+                'order'                 => 54,
                 'generator_mode'        => 'conditional',
                 'generator_conditions'  => [
-                    ['and' => [['field' => 'graawerk_meters', 'op' => 'gt', 'value' => 0]]],
+                    ['and' => [['field' => 'graawerk_meters', 'op' => 'gt', 'value' => 5]]],
                 ],
                 'generator_value_rules' => [
-                    'aantal' => ['enabled' => true, 'field' => 'graawerk_meters', 'op' => '+', 'delta' => 0],
+                    'aantal' => ['enabled' => true, 'field' => 'graawerk_meters', 'op' => '-', 'delta' => 5],
                     'prijs'  => ['enabled' => false],
                 ],
             ]
