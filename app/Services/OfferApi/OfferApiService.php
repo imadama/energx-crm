@@ -4,6 +4,7 @@ namespace App\Services\OfferApi;
 
 use App\Models\ApiField;
 use App\Models\ApiSubmission;
+use App\Models\Contactpersoon;
 use App\Models\Klant;
 use App\Models\Offerte;
 use App\Models\OfferteTemplate;
@@ -151,21 +152,35 @@ class OfferApiService
             throw ValidationException::withMessages(['customer.email' => ['E-mailadres is verplicht.']]);
         }
 
-        $klant = Klant::query()->where('email', $email)->first();
-        if ($klant) {
-            return $klant;
+        // Zoek bestaande klant via contactpersoon e-mail
+        $contactpersoon = Contactpersoon::where('email', $email)->first();
+        if ($contactpersoon) {
+            return $contactpersoon->klant;
         }
 
-        return Klant::create([
-            'naam' => (string)($customer['name'] ?? ''),
-            'email' => $email,
-            'telefoon' => Arr::get($customer, 'phone'),
-            'straat' => Arr::get($customer, 'street'),
+        // Naam splitsen in voornaam / achternaam
+        $volledigeNaam = trim((string)($customer['name'] ?? ''));
+        $spacePos  = strpos($volledigeNaam, ' ');
+        $voornaam  = $spacePos !== false ? substr($volledigeNaam, 0, $spacePos) : $volledigeNaam;
+        $achternaam = $spacePos !== false ? substr($volledigeNaam, $spacePos + 1) : '';
+
+        $klant = Klant::create([
+            'naam'       => $volledigeNaam,
+            'straat'     => Arr::get($customer, 'street'),
             'huisnummer' => Arr::get($customer, 'housenumber'),
-            'postcode' => Arr::get($customer, 'postalcode'),
-            'stad' => Arr::get($customer, 'city'),
-            'bron' => 'website',
+            'postcode'   => Arr::get($customer, 'postalcode'),
+            'stad'       => Arr::get($customer, 'city'),
+            'bron'       => 'website',
         ]);
+
+        $klant->contactpersonen()->create([
+            'voornaam'   => $voornaam,
+            'achternaam' => $achternaam,
+            'email'      => $email,
+            'telefoon'   => Arr::get($customer, 'phone'),
+        ]);
+
+        return $klant;
     }
 
     /**
