@@ -63,7 +63,7 @@ class DemoSeeder extends Seeder
         $this->command->info('Producten aangemaakt: ' . Product::count() . ' stuks');
 
         // ── Offerte templates ────────────────────────────────
-        $this->call(ZaptecTemplatesSeeder::class);
+        $this->call(LaadpaalCompleteSeeder::class);
 
         // ── Demo klant ───────────────────────────────────────
         $klant = Klant::updateOrCreate(
