@@ -31,7 +31,7 @@ class LaadpaalCompleteSeeder extends Seeder
                 'key'            => 'model',
                 'label'          => 'Laadpaal model',
                 'type'           => 'list',
-                'allowed_values' => ['zaptec-go', 'zaptec-go2', 'ratio-io6pro', 'ratio-io6', 'ratio-solar', 'alfen-sline'],
+                'allowed_values' => ['go', 'go2', 'io6pro', 'io6', 'solar', 'sline'],
             ],
             [
                 'key'            => 'meters_kabel',
@@ -67,7 +67,7 @@ class LaadpaalCompleteSeeder extends Seeder
                 'prijs'        => 599.00,
                 'merk'         => 'Zaptec',
                 'order'        => 10,
-                'model_key'    => 'zaptec-go',
+                'model_key'    => 'go',
             ],
             [
                 'naam'         => 'Zaptec Go 2',
@@ -75,7 +75,7 @@ class LaadpaalCompleteSeeder extends Seeder
                 'prijs'        => 749.00,
                 'merk'         => 'Zaptec',
                 'order'        => 11,
-                'model_key'    => 'zaptec-go2',
+                'model_key'    => 'go2',
             ],
             [
                 'naam'         => 'Ratio iO6 Pro',
@@ -83,7 +83,7 @@ class LaadpaalCompleteSeeder extends Seeder
                 'prijs'        => 649.00,
                 'merk'         => 'Ratio',
                 'order'        => 20,
-                'model_key'    => 'ratio-io6pro',
+                'model_key'    => 'io6pro',
             ],
             [
                 'naam'         => 'Ratio iO6',
@@ -91,7 +91,7 @@ class LaadpaalCompleteSeeder extends Seeder
                 'prijs'        => 549.00,
                 'merk'         => 'Ratio',
                 'order'        => 21,
-                'model_key'    => 'ratio-io6',
+                'model_key'    => 'io6',
             ],
             [
                 'naam'         => 'Ratio Solar',
@@ -99,7 +99,7 @@ class LaadpaalCompleteSeeder extends Seeder
                 'prijs'        => 399.00,
                 'merk'         => 'Ratio',
                 'order'        => 22,
-                'model_key'    => 'ratio-solar',
+                'model_key'    => 'solar',
             ],
             [
                 'naam'         => 'Alfen Eve S-line',
@@ -107,7 +107,7 @@ class LaadpaalCompleteSeeder extends Seeder
                 'prijs'        => 799.00,
                 'merk'         => 'Alfen',
                 'order'        => 30,
-                'model_key'    => 'alfen-sline',
+                'model_key'    => 'sline',
             ],
         ];
 
