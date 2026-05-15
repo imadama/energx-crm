@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AanvraagController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ApiFieldController;
 use App\Http\Controllers\KlantController;
@@ -31,6 +32,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::resource('producten', ProductController::class)->parameters(['producten' => 'product']);
     Route::patch('producten-volgorde', [ProductController::class, 'updateOrder'])->name('producten.order.update');
+    Route::get('aanvragen', [AanvraagController::class, 'index'])->name('aanvragen.index');
     Route::resource('offertes', OfferteController::class);
     Route::get('offertes/{offerte}/editor', [OfferteController::class, 'editor'])->name('offertes.editor');
     Route::patch('offertes/{offerte}/regels', [OfferteController::class, 'updateRegels'])->name('offertes.regels.update');

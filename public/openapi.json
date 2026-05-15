@@ -2,35 +2,99 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Energx CRM Offer API",
-    "version": "1.0.0"
+    "version": "1.1.0",
+    "description": "Gebruik deze API om offerteaanvragen van jouw website door te sturen naar het Energx CRM. Elke aanvraag genereert automatisch een concept-offerte die in het CRM zichtbaar is.\n\n**Authenticatie:** Stuur jouw API-sleutel mee als `X-Api-Key` header. Je vindt jouw sleutel in het CRM onder Instellingen → API-sleutels."
   },
   "servers": [
-    { "url": "/api" }
+    { "url": "https://crm.energx.nl/api", "description": "Productie" }
+  ],
+  "security": [
+    { "ApiKeyAuth": [] }
   ],
   "paths": {
     "/v1/offer": {
       "post": {
-        "summary": "Create offer (concept) from template + details",
+        "summary": "Aanvraag insturen — concept-offerte aanmaken",
         "operationId": "createOffer",
+        "description": "Stuur een offerteaanvraag in. Als de klant nog niet bestaat in het CRM wordt er automatisch een klantprofiel aangemaakt. De offerte wordt als concept in het CRM gezet en is direct zichtbaar onder Aanvragen.",
+        "security": [{ "ApiKeyAuth": [] }],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/CreateOfferRequest" }
+              "schema": { "$ref": "#/components/schemas/CreateOfferRequest" },
+              "examples": {
+                "thuisbatterij": {
+                  "summary": "Thuisbatterij aanvraag",
+                  "value": {
+                    "offerTemplateId": "thuisbatterij",
+                    "communicationPreference": "bellen",
+                    "customer": {
+                      "name": "Jan de Vries",
+                      "email": "jan@example.nl",
+                      "phone": "0612345678",
+                      "street": "Hoofdstraat",
+                      "housenumber": "12",
+                      "postalcode": "3011 AB",
+                      "city": "Rotterdam",
+                      "country": "NL"
+                    },
+                    "details": {
+                      "zonnepanelen": "ja",
+                      "doelen": ["opslaan", "besparen"],
+                      "verbruik": "gemiddeld",
+                      "capaciteit": "gemiddeld"
+                    }
+                  }
+                },
+                "laadpaal": {
+                  "summary": "Laadpaal aanvraag",
+                  "value": {
+                    "offerTemplateId": "laadpaal",
+                    "communicationPreference": "email",
+                    "customer": {
+                      "name": "Maria Jansen",
+                      "email": "maria@example.nl",
+                      "phone": "0698765432",
+                      "postalcode": "2511 AC",
+                      "city": "Den Haag",
+                      "country": "NL"
+                    },
+                    "details": {
+                      "situatie": "meterkast",
+                      "model": "ratio",
+                      "meters_kabel": 8
+                    }
+                  }
+                }
+              }
             }
           }
         },
         "responses": {
           "201": {
-            "description": "Offer created",
+            "description": "Aanvraag ontvangen, concept-offerte aangemaakt",
             "content": {
               "application/json": {
                 "schema": { "$ref": "#/components/schemas/CreateOfferResponse" }
               }
             }
           },
+          "401": {
+            "description": "Ontbrekende of ongeldige API-sleutel",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string", "example": "Ongeldige API-sleutel." }
+                  }
+                }
+              }
+            }
+          },
           "422": {
-            "description": "Validation error",
+            "description": "Validatiefout",
             "content": {
               "application/json": {
                 "schema": { "$ref": "#/components/schemas/ValidationError" }
@@ -42,31 +106,111 @@
     }
   },
   "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Api-Key",
+        "description": "Jouw persoonlijke API-sleutel. Genereer deze in het CRM onder Instellingen → API-sleutels."
+      }
+    },
     "schemas": {
       "CreateOfferRequest": {
         "type": "object",
         "required": ["customer", "communicationPreference", "offerTemplateId", "details"],
         "properties": {
+          "offerTemplateId": {
+            "type": "string",
+            "enum": ["thuisbatterij", "laadpaal"],
+            "description": "Het product waarvoor de aanvraag geldt. Bepaalt welke template en welke `details`-velden verwacht worden.",
+            "example": "thuisbatterij"
+          },
+          "communicationPreference": {
+            "type": "string",
+            "enum": ["email", "whatsapp", "bellen"],
+            "description": "Hoe de klant het liefst benaderd wil worden.",
+            "example": "bellen"
+          },
           "customer": {
             "type": "object",
-            "required": ["name", "email", "country"],
+            "required": ["name", "email"],
             "properties": {
-              "name": { "type": "string" },
-              "email": { "type": "string", "format": "email" },
-              "phone": { "type": "string", "nullable": true },
-              "street": { "type": "string", "nullable": true },
-              "housenumber": { "type": "string", "nullable": true },
-              "postalcode": { "type": "string", "nullable": true },
-              "city": { "type": "string", "nullable": true },
-              "country": { "type": "string", "enum": ["NL", "BE"] }
+              "name":        { "type": "string", "description": "Volledige naam", "example": "Jan de Vries" },
+              "email":       { "type": "string", "format": "email", "example": "jan@example.nl" },
+              "phone":       { "type": "string", "nullable": true, "example": "0612345678" },
+              "street":      { "type": "string", "nullable": true, "example": "Hoofdstraat" },
+              "housenumber": { "type": "string", "nullable": true, "example": "12A" },
+              "postalcode":  { "type": "string", "nullable": true, "example": "3011 AB" },
+              "city":        { "type": "string", "nullable": true, "example": "Rotterdam" },
+              "country":     { "type": "string", "enum": ["NL", "BE"], "default": "NL" }
             }
           },
-          "communicationPreference": { "type": "string", "enum": ["email", "whatsapp"] },
-          "offerTemplateId": { "type": "string", "description": "Matches offerte_templates.identifier" },
           "details": {
             "type": "object",
-            "additionalProperties": true,
-            "description": "Dynamic key/values. Keys must be configured in API velden."
+            "description": "Productspecifieke antwoorden. Zie de secties hieronder per `offerTemplateId`.",
+            "oneOf": [
+              { "$ref": "#/components/schemas/DetailsThuisbatterij" },
+              { "$ref": "#/components/schemas/DetailsLaadpaal" }
+            ]
+          }
+        }
+      },
+      "DetailsThuisbatterij": {
+        "type": "object",
+        "description": "Details voor `offerTemplateId: thuisbatterij`",
+        "properties": {
+          "zonnepanelen": {
+            "type": "string",
+            "enum": ["ja", "gepland", "nee"],
+            "description": "Heeft de klant al zonnepanelen (of staan ze gepland)?",
+            "example": "ja"
+          },
+          "doelen": {
+            "type": "array",
+            "items": { "type": "string", "enum": ["opslaan", "besparen", "backup", "onafhankelijk"] },
+            "description": "Eén of meerdere doelen voor de thuisbatterij.",
+            "example": ["opslaan", "besparen"]
+          },
+          "verbruik": {
+            "type": "string",
+            "enum": ["klein", "gemiddeld", "groot"],
+            "description": "Klein = <3.000 kWh/jaar, Gemiddeld = 3.000–5.000 kWh/jaar, Groot = >5.000 kWh/jaar.",
+            "example": "gemiddeld"
+          },
+          "capaciteit": {
+            "type": "string",
+            "enum": ["klein", "gemiddeld", "groot", "weet-niet"],
+            "description": "Klein = ~5 kWh, Gemiddeld = ~10 kWh, Groot = 15+ kWh.",
+            "example": "gemiddeld"
+          }
+        }
+      },
+      "DetailsLaadpaal": {
+        "type": "object",
+        "description": "Details voor `offerTemplateId: laadpaal`",
+        "properties": {
+          "situatie": {
+            "type": "string",
+            "enum": ["meterkast", "kruipruimte_gevel", "kruipruimte_grond"],
+            "description": "Installatie situatie van de laadpaal.",
+            "example": "meterkast"
+          },
+          "model": {
+            "type": "string",
+            "enum": ["ratio", "zaptec"],
+            "description": "Gewenst laadpaal merk/model.",
+            "example": "ratio"
+          },
+          "meters_kabel": {
+            "type": "integer",
+            "description": "Kabellengte in meters van meterkast naar laadpaal.",
+            "example": 8
+          },
+          "graawerk_meters": {
+            "type": "integer",
+            "nullable": true,
+            "description": "Alleen bij situatie `kruipruimte_grond`: meters graafwerk.",
+            "example": 5
           }
         }
       },
@@ -74,21 +218,25 @@
         "type": "object",
         "required": ["offerteId", "offerteNummer", "viewerUrl", "warnings"],
         "properties": {
-          "offerteId": { "type": "integer" },
-          "offerteNummer": { "type": "string" },
-          "viewerUrl": { "type": "string" },
-          "warnings": { "type": "array", "items": { "type": "string" } }
+          "offerteId":     { "type": "integer", "example": 42 },
+          "offerteNummer": { "type": "string", "example": "OFF-2026-0042" },
+          "viewerUrl":     { "type": "string", "example": "https://crm.energx.nl/offerte/abc123xyz" },
+          "warnings":      { "type": "array", "items": { "type": "string" }, "description": "Niet-kritieke waarschuwingen (bijv. ontbrekende prijs-velden)." }
         }
       },
       "ValidationError": {
         "type": "object",
         "properties": {
-          "message": { "type": "string" },
+          "message": { "type": "string", "example": "The given data was invalid." },
           "errors": {
             "type": "object",
             "additionalProperties": {
               "type": "array",
               "items": { "type": "string" }
+            },
+            "example": {
+              "customer.email": ["E-mailadres is verplicht."],
+              "details.zonnepanelen": ["Ongeldige waarde."]
             }
           }
         }
@@ -96,4 +244,3 @@
     }
   }
 }
-

@@ -136,6 +136,17 @@ class OfferApiService
                     }
                     $normalized[$key] = $v;
                     break;
+                case 'list_multiple':
+                    $allowed = $field->allowed_values ?? [];
+                    $values = is_array($value) ? $value : [$value];
+                    foreach ($values as $v) {
+                        $v = is_string($v) || is_numeric($v) ? (string)$v : null;
+                        if ($v === null || !in_array($v, $allowed, true)) {
+                            throw ValidationException::withMessages(['details.' . $key => ['Ongeldige waarde: ' . $v]]);
+                        }
+                    }
+                    $normalized[$key] = array_values(array_map('strval', $values));
+                    break;
             }
         }
 
