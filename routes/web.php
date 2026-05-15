@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AanvraagController;
+use App\Http\Controllers\ApiKeyController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ApiFieldController;
 use App\Http\Controllers\KlantController;
@@ -42,6 +43,9 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('offertes/{offerte}/secties-volgorde', [OfferteSectieController::class, 'reorder'])->name('offertes.secties.reorder');
     Route::resource('offerte-templates', OfferteTemplateController::class)->except('show');
     Route::resource('api-fields', ApiFieldController::class)->except('show');
+    Route::get('api-keys', [ApiKeyController::class, 'index'])->name('api-keys.index');
+    Route::post('api-keys', [ApiKeyController::class, 'store'])->name('api-keys.store');
+    Route::delete('api-keys/{apiKey}', [ApiKeyController::class, 'destroy'])->name('api-keys.destroy');
 });
 
 // Publieke offerte viewer (geen login nodig)

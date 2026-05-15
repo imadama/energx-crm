@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Scopes\TeamScope;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -11,10 +12,28 @@ class Ticket extends Model
     protected $table = 'tickets';
 
     protected $fillable = [
+        'team_id',
         'contactpersoon_id',
         'titel',
         'status',
     ];
+
+    protected static function booted(): void
+    {
+        static::addGlobalScope(new TeamScope());
+        static::creating(function (self $model) {
+            if (empty($model->team_id) && auth()->check()) {
+                $model->team_id = auth()->user()->team_id;
+            }
+            if (!$model->nummer) {
+                $jaar = date('Y');
+                $laatste = static::withoutGlobalScope(TeamScope::class)
+                    ->where('nummer', 'like', "TCK-{$jaar}-%")->latest('id')->first();
+                $volgnummer = $laatste ? intval(substr($laatste->nummer, -4)) + 1 : 1;
+                $model->nummer = sprintf("TCK-%s-%04d", $jaar, $volgnummer);
+            }
+        });
+    }
 
     protected static function booted(): void
     {

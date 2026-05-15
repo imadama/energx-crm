@@ -24,14 +24,16 @@ class OfferApiService
         $details  = (array)($payload['details'] ?? []);
         $templateIdentifier = (string)($payload['offerTemplateId'] ?? '');
         $communicationPreference = $payload['communicationPreference'] ?? null;
+        $teamId = (int) request()->attributes->get('api_team_id');
 
         $warnings = [];
 
         $normalizedDetails = $this->validateAndNormalizeDetails($details);
 
         /** @var OfferApiResult $result */
-        $result = DB::transaction(function () use ($payload, $customer, $templateIdentifier, $communicationPreference, $normalizedDetails, &$warnings) {
+        $result = DB::transaction(function () use ($payload, $customer, $templateIdentifier, $communicationPreference, $normalizedDetails, $teamId, &$warnings) {
             $submission = ApiSubmission::create([
+                'team_id' => $teamId ?: null,
                 'template_identifier' => $templateIdentifier,
                 'communication_preference' => is_string($communicationPreference) ? $communicationPreference : null,
                 'customer_email' => is_string($customer['email'] ?? null) ? $customer['email'] : null,
@@ -39,10 +41,11 @@ class OfferApiService
                 'details' => $normalizedDetails,
             ]);
 
-            $klant = $this->findOrCreateKlant($customer);
+            $klant = $this->findOrCreateKlant($customer, $teamId ?: null);
 
-            $template = OfferteTemplate::query()
+            $template = OfferteTemplate::withoutGlobalScopes()
                 ->where('identifier', $templateIdentifier)
+                ->when($teamId, fn ($q) => $q->where('team_id', $teamId))
                 ->with('secties', 'regels')
                 ->first();
 
@@ -53,9 +56,10 @@ class OfferApiService
             }
 
             $offerte = Offerte::create([
-                'klant_id' => $klant->id,
+                'team_id'     => $teamId ?: null,
+                'klant_id'    => $klant->id,
                 'template_id' => $template->id,
-                'status' => 'concept',
+                'status'      => 'concept',
             ]);
 
             foreach ($template->secties as $sectie) {
@@ -156,7 +160,7 @@ class OfferApiService
     /**
      * @param array<string,mixed> $customer
      */
-    private function findOrCreateKlant(array $customer): Klant
+    private function findOrCreateKlant(array $customer, ?int $teamId = null): Klant
     {
         $email = trim((string)($customer['email'] ?? ''));
         if ($email === '') {
@@ -176,6 +180,7 @@ class OfferApiService
         $achternaam = $spacePos !== false ? substr($volledigeNaam, $spacePos + 1) : '';
 
         $klant = Klant::create([
+            'team_id'    => $teamId,
             'naam'       => $volledigeNaam,
             'straat'     => Arr::get($customer, 'street'),
             'huisnummer' => Arr::get($customer, 'housenumber'),
