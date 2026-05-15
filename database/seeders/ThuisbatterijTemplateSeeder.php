@@ -98,7 +98,7 @@ Na akkoord nemen wij binnen één werkdag contact met je op om de installatie in
                 'volgorde' => 1,
             ],
             [
-                'type'     => 'intro',
+                'type'     => 'introductie',
                 'titel'    => 'Uw persoonlijk advies',
                 'inhoud'   => ['tekst' => $introTekst],
                 'volgorde' => 2,
