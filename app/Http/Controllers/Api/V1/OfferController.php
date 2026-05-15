@@ -22,7 +22,7 @@ class OfferController extends Controller
             'customer.postalcode' => 'nullable|string|max:255',
             'customer.city' => 'nullable|string|max:255',
             'customer.country' => 'required|in:NL,BE',
-            'communicationPreference' => 'required|in:email,whatsapp',
+            'communicationPreference' => 'required|in:email,whatsapp,bellen',
             'offerTemplateId' => 'required|string|max:255',
             'details' => 'required|array',
         ]);
