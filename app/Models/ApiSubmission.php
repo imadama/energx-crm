@@ -18,6 +18,8 @@ class ApiSubmission extends Model
         'payload',
         'details',
         'offerte_id',
+        'status',
+        'notitie',
     ];
 
     protected static function booted(): void

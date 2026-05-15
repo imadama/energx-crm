@@ -2,10 +2,7 @@
 
   <x-slot name="actions">
     <a href="{{ route('docs.swagger') }}" target="_blank" class="btn btn-secondary btn-sm">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
-        <line x1="12" y1="16" x2="12.01" y2="16"/>
-      </svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
       API docs
     </a>
   </x-slot>
@@ -13,140 +10,141 @@
   <div class="page-header">
     <div>
       <h1>Aanvragen</h1>
-      <p>Alle binnengekomen offerteaanvragen via de website</p>
+      <p>{{ $aanvragen->flatten()->count() }} aanvragen totaal</p>
     </div>
   </div>
 
   @php
-    $templateLabels = [
-      'thuisbatterij' => 'Thuisbatterij',
-      'laadpaal'      => 'Laadpaal',
-      'warmtepomp'    => 'Warmtepomp',
-    ];
-
-    $detailLabels = [
-      'zonnepanelen'   => 'Zonnepanelen aanwezig',
-      'doelen'         => 'Doelen',
-      'verbruik'       => 'Jaarlijks verbruik',
-      'capaciteit'     => 'Gewenste capaciteit',
-      'situatie'       => 'Installatie situatie',
-      'model'          => 'Laadpaal model',
-      'meters_kabel'   => 'Kabellengte (m)',
-      'graawerk_meters'=> 'Graafwerk (m)',
+    $templateLabels = ['thuisbatterij' => 'Thuisbatterij', 'laadpaal' => 'Laadpaal', 'warmtepomp' => 'Warmtepomp'];
+    $statusNext = [
+      'nieuw'          => 'in_behandeling',
+      'in_behandeling' => 'offerte_gemaakt',
+      'offerte_gemaakt'=> 'afgerond',
+      'afgerond'       => null,
+      'afgewezen'      => null,
     ];
   @endphp
 
-  <div class="card">
-    <div class="card-header">
-      <span class="card-title">{{ $aanvragen->total() }} aanvragen</span>
-    </div>
+  <style>
+    .board { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 16px; align-items: flex-start; }
+    .board-col { flex: 0 0 280px; min-width: 280px; }
+    .board-col-header {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 14px; border-radius: 10px 10px 0 0;
+      font-size: .8rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+    }
+    .board-col-count {
+      margin-left: auto; background: rgba(0,0,0,.1);
+      border-radius: 20px; padding: 2px 8px; font-size: .72rem;
+    }
+    .board-cards { display: flex; flex-direction: column; gap: 10px; padding: 10px 0; min-height: 80px; }
+    .board-card {
+      background: #fff; border-radius: 10px; border: 1px solid #e5e7eb;
+      padding: 14px; box-shadow: 0 1px 3px rgba(0,0,0,.05);
+      transition: box-shadow .15s;
+    }
+    .board-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,.08); }
+    .card-product { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px; }
+    .card-naam { font-size: .9rem; font-weight: 600; color: #1a1a1a; }
+    .card-email { font-size: .75rem; color: #888; margin-top: 2px; }
+    .card-meta { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; font-size: .72rem; color: #aaa; }
+    .card-actions { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+    .card-notitie { font-size: .78rem; color: #666; background: #f9fafb; border-radius: 6px; padding: 6px 8px; margin-top: 8px; border-left: 3px solid #e5e7eb; }
+    .empty-col { text-align: center; padding: 24px 12px; color: #ccc; font-size: .8rem; border: 2px dashed #f0f0f0; border-radius: 8px; }
+  </style>
 
-    @if($aanvragen->isEmpty())
-      <div class="empty-state">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path d="M9 12h6m-3-3v6M3 12a9 9 0 1118 0 9 9 0 01-18 0z"/>
-        </svg>
-        <p>Nog geen aanvragen ontvangen.</p>
-      </div>
-    @else
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Datum</th>
-              <th>Klant</th>
-              <th>Product</th>
-              <th>Voorkeur contact</th>
-              <th>Status</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            @foreach($aanvragen as $aanvraag)
-              @php
-                $customer  = $aanvraag->payload['customer'] ?? [];
-                $naam      = $customer['name']  ?? '—';
-                $email     = $customer['email'] ?? '—';
-                $telefoon  = $customer['phone'] ?? null;
-                $product   = $templateLabels[$aanvraag->template_identifier] ?? ucfirst($aanvraag->template_identifier);
-                $commPref  = $aanvraag->communication_preference;
-                $heeftOfferte = $aanvraag->offerte !== null;
-              @endphp
-              <tr x-data="{ open: false }">
-                <td style="white-space:nowrap; color:#888; font-size:.8rem">
-                  {{ $aanvraag->created_at->format('d M Y') }}<br>
-                  <span style="color:#bbb">{{ $aanvraag->created_at->format('H:i') }}</span>
-                </td>
-                <td>
-                  <div style="font-weight:600">{{ $naam }}</div>
-                  <div style="font-size:.8rem; color:#888">{{ $email }}</div>
-                  @if($telefoon)
-                    <div style="font-size:.8rem; color:#888">{{ $telefoon }}</div>
-                  @endif
-                </td>
-                <td>
-                  <span class="badge badge-concept" style="background:#f0fdf4; color:#15803d">{{ $product }}</span>
-                </td>
-                <td style="font-size:.85rem; color:#666">
-                  @if($commPref === 'bellen')     Bellen
-                  @elseif($commPref === 'email')  E-mail
-                  @elseif($commPref === 'whatsapp') WhatsApp
-                  @else —
-                  @endif
-                </td>
-                <td>
-                  @if($heeftOfferte)
-                    <a href="{{ route('offertes.show', $aanvraag->offerte_id) }}" class="badge badge-geaccepteerd" style="text-decoration:none">
-                      Offerte aangemaakt
-                    </a>
-                  @else
-                    <span class="badge" style="background:#fef9c3; color:#854d0e">Nieuw</span>
-                  @endif
-                </td>
-                <td style="text-align:right">
-                  @if(!empty($aanvraag->details))
-                    <button @click="open = !open" class="btn btn-secondary btn-sm">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px" :style="open && 'transform:rotate(180deg)'">
-                        <polyline points="6 9 12 15 18 9"/>
-                      </svg>
-                      Details
-                    </button>
-                  @endif
-                </td>
-              </tr>
-              @if(!empty($aanvraag->details))
-                <tr x-show="open" x-cloak>
-                  <td colspan="6" style="background:#f9fafb; padding:16px 20px">
-                    <div style="display:flex; flex-wrap:wrap; gap:12px">
-                      @foreach($aanvraag->details as $key => $value)
-                        <div style="background:#fff; border:1px solid #e5e7eb; border-radius:8px; padding:10px 14px; min-width:160px">
-                          <div style="font-size:.7rem; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:#aaa; margin-bottom:4px">
-                            {{ $detailLabels[$key] ?? $key }}
-                          </div>
-                          <div style="font-size:.875rem; color:#1a1a1a; font-weight:500">
-                            @if(is_array($value))
-                              {{ implode(', ', $value) }}
-                            @else
-                              {{ $value }}
-                            @endif
-                          </div>
-                        </div>
-                      @endforeach
-                    </div>
-                  </td>
-                </tr>
-              @endif
-            @endforeach
-          </tbody>
-        </table>
-      </div>
-
-      @if($aanvragen->hasPages())
-        <div style="padding:16px 20px; border-top:1px solid #f0f0f0">
-          {{ $aanvragen->links() }}
+  <div class="board">
+    @foreach($kolommen as $statusKey => $kolom)
+      @php $cards = $aanvragen->get($statusKey, collect()); @endphp
+      <div class="board-col">
+        <div class="board-col-header" style="background:{{ $kolom['bg'] }}; color:{{ $kolom['color'] }}">
+          {{ $kolom['label'] }}
+          <span class="board-col-count">{{ $cards->count() }}</span>
         </div>
-      @endif
-    @endif
+
+        <div class="board-cards">
+          @forelse($cards as $aanvraag)
+            @php
+              $customer = $aanvraag->payload['customer'] ?? [];
+              $naam     = $customer['name']  ?? '—';
+              $email    = $customer['email'] ?? '—';
+              $telefoon = $customer['phone'] ?? null;
+              $product  = $templateLabels[$aanvraag->template_identifier] ?? ucfirst($aanvraag->template_identifier);
+              $nextStatus = $statusNext[$statusKey];
+              $nextLabel  = $nextStatus ? $kolommen[$nextStatus]['label'] : null;
+            @endphp
+            <div class="board-card" x-data="{ open: false }">
+              <div class="card-product" style="color:{{ $kolom['color'] }}">{{ $product }}</div>
+              <div class="card-naam">{{ $naam }}</div>
+              <div class="card-email">{{ $email }}</div>
+              @if($telefoon)
+                <div class="card-email">{{ $telefoon }}</div>
+              @endif
+
+              @if($aanvraag->notitie)
+                <div class="card-notitie">{{ $aanvraag->notitie }}</div>
+              @endif
+
+              <div class="card-meta">
+                <span>{{ $aanvraag->created_at->format('d M, H:i') }}</span>
+                @if($aanvraag->offerte_id)
+                  <a href="{{ route('offertes.show', $aanvraag->offerte_id) }}" style="color:var(--green-400); font-weight:600">Offerte →</a>
+                @endif
+              </div>
+
+              <div class="card-actions">
+                @if($nextStatus)
+                  <form method="POST" action="{{ route('aanvragen.status', $aanvraag) }}">
+                    @csrf @method('PATCH')
+                    <input type="hidden" name="status" value="{{ $nextStatus }}">
+                    <button type="submit" class="btn btn-primary btn-sm" style="font-size:.75rem; padding:5px 10px">
+                      → {{ $nextLabel }}
+                    </button>
+                  </form>
+                @endif
+                @if($statusKey !== 'afgewezen')
+                  <form method="POST" action="{{ route('aanvragen.status', $aanvraag) }}">
+                    @csrf @method('PATCH')
+                    <input type="hidden" name="status" value="afgewezen">
+                    <button type="submit" class="btn btn-danger btn-sm" style="font-size:.75rem; padding:5px 10px">✕</button>
+                  </form>
+                @endif
+                <button @click="open = !open" class="btn btn-secondary btn-sm" style="font-size:.75rem; padding:5px 10px">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
+              </div>
+
+              <div x-show="open" x-cloak style="margin-top:10px">
+                <form method="POST" action="{{ route('aanvragen.status', $aanvraag) }}" style="display:flex; flex-direction:column; gap:6px">
+                  @csrf @method('PATCH')
+                  <input type="hidden" name="status" value="{{ $statusKey }}">
+                  <select name="status" class="form-select" style="font-size:.8rem; padding:6px 8px">
+                    @foreach($kolommen as $k => $kol)
+                      <option value="{{ $k }}" {{ $statusKey === $k ? 'selected' : '' }}>{{ $kol['label'] }}</option>
+                    @endforeach
+                  </select>
+                  <textarea name="notitie" class="form-textarea" placeholder="Notitie toevoegen..." style="font-size:.8rem; min-height:60px">{{ $aanvraag->notitie }}</textarea>
+                  <button type="submit" class="btn btn-primary btn-sm" style="font-size:.78rem">Opslaan</button>
+                </form>
+
+                @if(!empty($aanvraag->details))
+                  <div style="margin-top:8px; display:flex; flex-wrap:wrap; gap:6px">
+                    @foreach($aanvraag->details as $key => $value)
+                      <div style="background:#f3f4f6; border-radius:6px; padding:4px 8px; font-size:.72rem">
+                        <span style="color:#888">{{ $key }}:</span>
+                        <strong>{{ is_array($value) ? implode(', ', $value) : $value }}</strong>
+                      </div>
+                    @endforeach
+                  </div>
+                @endif
+              </div>
+            </div>
+          @empty
+            <div class="empty-col">Geen aanvragen</div>
+          @endforelse
+        </div>
+      </div>
+    @endforeach
   </div>
 
 </x-layouts.crm>
