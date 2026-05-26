@@ -78,16 +78,14 @@ class AircoTemplateSeeder extends Seeder
             ]
         );
 
-        if ($template->wasRecentlyCreated === false && $template->secties()->count() > 0) {
-            $this->command->info("Template 'airco' bestaat al — overgeslagen.");
-            return;
-        }
+        // Altijd secties bijwerken zodat content-wijzigingen live gaan bij elke deploy
+        $template->secties()->delete();
 
         $introTekst = "Beste [naam],
 
-Hartelijk dank voor uw interesse in een airco. Op basis van uw antwoorden stellen wij een passend advies op.
+Hartelijk dank voor uw interesse in een airco. Op basis van uw antwoorden stellen wij een passende offerte op.
 
-Een airconditioner zorgt jaarrond voor een comfortabel binnenklimaat — koelen in de zomer én energiezuinig verwarmen in de winter. In deze offerte vindt u een overzicht van het geadviseerde systeem en de bijbehorende kosten.
+Wij vertrouwen erop u hiermee een passende aanbieding te doen en zien uw reactie met belangstelling tegemoet.
 
 Heeft u vragen? Neem gerust contact met ons op via 085-369 7127 of info@energx.nl.";
 
@@ -95,16 +93,42 @@ Heeft u vragen? Neem gerust contact met ons op via 085-369 7127 of info@energx.n
 
 Dankzij de invertertechnologie past het systeem het vermogen continu aan op de werkelijke behoefte, wat resulteert in een laag energieverbruik. Het systeem is geschikt voor koelen, verwarmen en ontvochtigen.
 
-Mitsubishi Electric biedt uitgebreide garantie en alle installaties worden uitgevoerd door gecertificeerde F-gassen installateurs.";
+Alle installaties worden uitgevoerd door gecertificeerde F-gassen installateurs conform KIWA installatievoorschrift, BRL100 en BRL200.";
 
         $specs = [
-            ['label' => 'Koelvermogen',     'waarde' => '2,5 kW (MSZ-HR25)'],
-            ['label' => 'Verwarmingsvermogen', 'waarde' => '3,2 kW'],
-            ['label' => 'Energielabel',     'waarde' => 'A++'],
-            ['label' => 'Geluidsniveau',    'waarde' => '19 dB(A) binnen'],
-            ['label' => 'Koelmiddel',       'waarde' => 'R32 (laag GWP)'],
-            ['label' => 'Garantie',         'waarde' => '5 jaar'],
-            ['label' => 'Bediening',        'waarde' => 'Afstandsbediening + app'],
+            ['label' => 'Koelvermogen',           'waarde' => '2,5 kW (MSZ-HR25)'],
+            ['label' => 'Verwarmingsvermogen',     'waarde' => '3,2 kW'],
+            ['label' => 'Energielabel',            'waarde' => 'A++'],
+            ['label' => 'Geluidsniveau',           'waarde' => '19 dB(A) binnen'],
+            ['label' => 'Koelmiddel',              'waarde' => 'R32 (laag GWP)'],
+            ['label' => 'Koudemiddelleiding incl.','waarde' => 'Tot 5 meter'],
+            ['label' => 'Certificering',           'waarde' => 'KIWA, BRL100, BRL200'],
+            ['label' => 'Garantie',                'waarde' => '5 jaar'],
+        ];
+
+        $inbegrepen = [
+            'Binnen- en buitendeel van de airconditioning',
+            'Plaatsing condensafvoer binnenunit naar buiten op natuurlijk afschot',
+            'Plaatsing muurbeugel of rubberen consoles t.b.v. het buitendeel',
+            'Éénmaal muurdoorvoer d.m.v. diamantboor (diameter 60 mm)',
+            'Leidinggoot ter afwerking van de koelleidingen aan de gevel',
+            'Plaatsing werkschakelaar',
+            'Koudemiddelleiding tot 5 meter (binnen naar buitenunit)',
+            'Uitgebreide uitleg omtrent de werking van de airconditioning',
+            'Installatie conform KIWA installatievoorschrift, BRL100 & BRL200',
+        ];
+
+        $meerkosten = [
+            'Dakdoorvoer(en) t.b.v. koelleidingen',
+            'Fysieke schouw & advies op locatie i.v.m. technische haalbaarheid — € 60,- incl. btw',
+            'Reiskostenvergoeding > 15 km vanaf eigen adres — € 65,- incl. btw',
+            'Leidingen onder dakpannen, kruipruimten of knieschotten — € 115,- incl. btw',
+            'Extra ballast om resonantie te voorkomen op daken',
+            'Koudemiddelleiding > 5 m — € 65,- incl. btw per extra meter',
+            'Plaatsing extra groep in de meterkast inclusief bekabeling',
+            'Betonboringen of boringen vanaf twee met de diamantboor',
+            'Leveren en monteren van condenspomp(en) t.b.v. condenswater',
+            'Hoogwerker of steiger(s)',
         ];
 
         $acceptatieTekst = "Ga je akkoord met deze offerte? Klik op de knop hieronder om digitaal te bevestigen. Je ontvangt een bevestiging per e-mail.
@@ -130,6 +154,8 @@ Na akkoord nemen wij binnen één werkdag contact met je op om de installatie in
                 'inhoud'   => [
                     'beschrijving' => $productBeschrijving,
                     'specs'        => $specs,
+                    'inbegrepen'   => $inbegrepen,
+                    'meerkosten'   => $meerkosten,
                 ],
                 'volgorde' => 3,
             ],
@@ -151,6 +177,6 @@ Na akkoord nemen wij binnen één werkdag contact met je op om de installatie in
             OfferteTemplateSectie::create(array_merge($sectie, ['template_id' => $template->id]));
         }
 
-        $this->command->info("Template '{$template->naam}' aangemaakt (identifier: airco).");
+        $this->command->info("Template '{$template->naam}' bijgewerkt (identifier: airco).");
     }
 }
