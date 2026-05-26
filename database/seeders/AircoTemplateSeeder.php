@@ -66,17 +66,22 @@ class AircoTemplateSeeder extends Seeder
 
     private function seedTemplate(): void
     {
-        OfferteTemplate::where('identifier', 'airco')->delete();
-
         $adminTeam = Team::where('is_admin', true)->first();
 
-        $template = OfferteTemplate::create([
-            'team_id'      => $adminTeam?->id,
-            'naam'         => 'Airco — Standaard advies',
-            'beschrijving' => 'Concept-offerte voor airco aanvragen via de website.',
-            'categorie'    => 'airco',
-            'identifier'   => 'airco',
-        ]);
+        $template = OfferteTemplate::firstOrCreate(
+            ['identifier' => 'airco'],
+            [
+                'team_id'      => $adminTeam?->id,
+                'naam'         => 'Airco — Standaard advies',
+                'beschrijving' => 'Concept-offerte voor airco aanvragen via de website.',
+                'categorie'    => 'airco',
+            ]
+        );
+
+        if ($template->wasRecentlyCreated === false && $template->secties()->count() > 0) {
+            $this->command->info("Template 'airco' bestaat al — overgeslagen.");
+            return;
+        }
 
         $introTekst = "Beste [naam],
 
