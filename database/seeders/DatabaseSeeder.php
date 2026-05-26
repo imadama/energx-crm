@@ -10,5 +10,6 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(DemoSeeder::class);
         $this->call(ThuisbatterijTemplateSeeder::class);
+        $this->call(AircoTemplateSeeder::class);
     }
 }

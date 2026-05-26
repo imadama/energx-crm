@@ -15,7 +15,7 @@
   </div>
 
   @php
-    $templateLabels = ['thuisbatterij' => 'Thuisbatterij', 'laadpaal' => 'Laadpaal', 'warmtepomp' => 'Warmtepomp'];
+    $templateLabels = ['thuisbatterij' => 'Thuisbatterij', 'laadpaal' => 'Laadpaal', 'warmtepomp' => 'Warmtepomp', 'airco' => 'Airco'];
     $statusNext = [
       'nieuw'          => 'in_behandeling',
       'in_behandeling' => 'offerte_gemaakt',
