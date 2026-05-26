@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\ApiField;
 use App\Models\OfferteTemplate;
 use App\Models\OfferteTemplateSectie;
+use App\Models\Team;
 use Illuminate\Database\Seeder;
 
 class AircoTemplateSeeder extends Seeder
@@ -67,7 +68,10 @@ class AircoTemplateSeeder extends Seeder
     {
         OfferteTemplate::where('identifier', 'airco')->delete();
 
+        $adminTeam = Team::where('is_admin', true)->first();
+
         $template = OfferteTemplate::create([
+            'team_id'      => $adminTeam?->id,
             'naam'         => 'Airco — Standaard advies',
             'beschrijving' => 'Concept-offerte voor airco aanvragen via de website.',
             'categorie'    => 'airco',
