@@ -24,7 +24,7 @@ class OfferController extends Controller
             'customer.country' => 'required|in:NL,BE',
             'communicationPreference' => 'required|in:email,whatsapp,bellen',
             'offerTemplateId' => 'required|string|max:255',
-            'details' => 'required|array',
+            'details' => 'present|array',
         ]);
 
         try {
