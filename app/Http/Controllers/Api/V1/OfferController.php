@@ -29,7 +29,7 @@ class OfferController extends Controller
             'communicationPreference' => 'required|in:email,whatsapp,bellen',
             'offerTemplateId' => 'required|string|max:255',
             'details' => 'nullable|array',
-        ]);
+        ])->validate();
 
         try {
             $result = $service->createOfferFromApi($data);
