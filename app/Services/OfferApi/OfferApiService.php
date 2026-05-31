@@ -136,7 +136,9 @@ class OfferApiService
                     $allowed = $field->allowed_values ?? [];
                     $v = is_string($value) || is_numeric($value) ? (string)$value : null;
                     if ($v === null || !in_array($v, $allowed, true)) {
-                        throw ValidationException::withMessages(['details.' . $key => ['Ongeldige waarde.']]);
+                        // Sla ongeldige waarden over (bijv. van Zapier/Meta) i.p.v. te crashen
+                        $normalized[$key] = null;
+                        break;
                     }
                     $normalized[$key] = $v;
                     break;
