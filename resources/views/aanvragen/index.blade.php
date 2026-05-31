@@ -127,11 +127,36 @@
                   <button type="submit" class="btn btn-primary btn-sm" style="font-size:.78rem">Opslaan</button>
                 </form>
 
-                @if(!empty($aanvraag->details))
+                @php
+                  $payloadCustomer = $aanvraag->payload['customer'] ?? [];
+                  $extraInfo = array_filter([
+                    'Postcode'       => $payloadCustomer['postalcode'] ?? null,
+                    'Huisnummer'     => $payloadCustomer['housenumber'] ?? null,
+                    'Stad'           => $payloadCustomer['city'] ?? null,
+                    'Contact via'    => $aanvraag->communication_preference ?? ($aanvraag->payload['communicationPreference'] ?? null),
+                  ]);
+                  $allDetails = array_filter(array_merge($extraInfo, $aanvraag->details ?? []), fn($v) => $v !== null && $v !== '');
+                @endphp
+                @if(!empty($allDetails))
                   <div style="margin-top:8px; display:flex; flex-wrap:wrap; gap:6px">
-                    @foreach($aanvraag->details as $key => $value)
+                    @foreach($allDetails as $key => $value)
                       <div style="background:#f3f4f6; border-radius:6px; padding:4px 8px; font-size:.72rem">
                         <span style="color:#888">{{ $key }}:</span>
+                        <strong>{{ is_array($value) ? implode(', ', $value) : $value }}</strong>
+                      </div>
+                    @endforeach
+                  </div>
+                @endif
+
+                @php
+                  $rawPayload = collect($aanvraag->payload['details'] ?? [])->filter(fn($v) => $v !== null && $v !== '');
+                @endphp
+                @if($rawPayload->isNotEmpty())
+                  <div style="margin-top:6px; font-size:.7rem; color:#aaa; font-weight:600; text-transform:uppercase; letter-spacing:.04em">Formulier antwoorden</div>
+                  <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:4px">
+                    @foreach($rawPayload as $key => $value)
+                      <div style="background:#fffbeb; border:1px solid #fde68a; border-radius:6px; padding:4px 8px; font-size:.72rem">
+                        <span style="color:#92400e">{{ $key }}:</span>
                         <strong>{{ is_array($value) ? implode(', ', $value) : $value }}</strong>
                       </div>
                     @endforeach
