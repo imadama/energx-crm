@@ -12,7 +12,11 @@ class OfferController extends Controller
 {
     public function store(Request $request, OfferApiService $service): JsonResponse
     {
-        $data = $request->validate([
+        // Zapier stuurt dot-notation keys plat (customer.name) i.p.v. genest.
+        // Arr::undot zet ze om naar nested arrays zodat validatie werkt.
+        $input = \Illuminate\Support\Arr::undot($request->all());
+
+        $data = validator($input, [
             'customer' => 'required|array',
             'customer.name' => 'required|string|max:255',
             'customer.email' => 'required|email|max:255',
